@@ -194,7 +194,7 @@ const M_BR  = ['inox 304L (1.4307)','inox 316L (1.4404)','acier S235JR','acier P
 const M_CORPS=['fonte EN-GJL-250 (GG25)','fonte EN-GJS-400 (GS)','inox 316 (CF8M)','inox 304 (CF8)','acier (WCB)','bronze'];
 const O = (id,label,vals,def,extra)=>Object.assign({id,label,vals,def:def!=null?def:vals[0]},extra||{});
 const JOINT = O('joint','Joint',['EPDM','silicone','FKM (Viton)','PTFE','NBR (nitrile)'],'EPDM',{lab:'joint '});
-const SCH_I = ['Sch 5S','Sch 10S','Sch 40S','Sch 80S','ép. du tube (à préciser)'];
+const SCH_I = ['2 mm','Sch 5S','Sch 10S','Sch 40S','Sch 80S','ép. du tube (à préciser)'];
 const SCH_A = ['Sch 40 (STD)','Sch 80 (XS)','Sch 160','ép. à préciser'];
 const P = (arr)=>arr.map(s=>{ if(typeof s!=='string') return s; return s.endsWith('*')?{n:s.slice(0,-1),two:true}:{n:s}; });
 
@@ -231,9 +231,9 @@ add({cat:'tube',grp:'Tubes acier',title:'Tube acier sans soudure – EN 10216-2'
   opts:[O('sch','Épaisseur',SCH_A,'Sch 40 (STD)')], dim:(s)=>`Ø${f(s.od)} (DN${s.dn})`});
 
 /* RACCORDS À SOUDER */
-const BW = ['Coude 90° grand rayon (R = 1,5 DN)','Coude 90° petit rayon (R = 1 DN)','Coude 90° R = 3 DN','Coude 45° grand rayon (R = 1,5 DN)','Retour 180° grand rayon (R = 1,5 DN)','Té égal à souder','Té réduit à souder*','Réduction concentrique à souder*','Réduction excentrique à souder*','Fond bombé à souder (calotte)'];
+const BW = ['Coude 90°','Coude 45°','Coude 180°','Té égal à souder','Té réduit à souder*','Réduction concentrique à souder*','Réduction excentrique à souder*','Fond bombé à souder (calotte)'];
 add({cat:'bw',grp:'Inox',title:'Raccords inox à souder bout à bout',norm:'EN 10253-4 / ASME B16.9',pieces:BW,mats:M_I,sizes:isoR(15,400),unit:'pièces',
-  opts:[O('ep','Épaisseur',SCH_I,'Sch 10S'), O('ex','Exécution',['soudé (type B)','sans soudure (type A)'])]});
+  opts:[O('ep','Épaisseur',SCH_I,'2 mm'), O('ex','Exécution',['soudé (type B)','sans soudure (type A)'])]});
 add({cat:'bw',grp:'Acier',title:'Raccords acier à souder bout à bout',norm:'EN 10253-2 / ASME B16.9',pieces:BW,mats:M_AT,sizes:isoR(15,500),unit:'pièces',
   opts:[O('ep','Épaisseur',SCH_A,'Sch 40 (STD)')]});
 
@@ -261,12 +261,12 @@ add({cat:'alim',grp:'Clamp',title:'Raccords clamp – DIN 32676 série A',norm:'
 const PNs = O('pn','Pression',['PN6','PN10','PN16','PN25','PN40'],'PN16');
 const FACE= O('face','Face',['B1 (portée de joint)','A (face plate)'],'B1 (portée de joint)',{lab:'face '});
 add({cat:'bride',grp:'EN 1092-1',title:'Brides EN 1092-1',norm:'EN 1092-1',unit:'pièces',mats:M_BR,sizes:ISO.filter(s=>s.dn<=600).map(s=>({t:`DN${s.dn}`,d:`DN${s.dn}`})),opts:[PNs,FACE],
-  pieces:['Bride plate à souder – type 01','Bride libre – type 02 (pour collet / collerette)','Bride pleine – type 05','Bride à moyeu à emboîtement – type 12',
+  pieces:['Bride plate à souder – type 01','Bride tournante – type 02 (pour collerette emboutie)','Bride pleine – type 05','Bride à moyeu à emboîtement – type 12',
    {n:'Bride à collerette à souder (WN) – type 11',opts:[O('ept','Ép. du tube (alésage)',['Sch 10S','Sch 40S','Sch 80S','2 mm','3 mm','à préciser'],'Sch 10S',{lab:'alésage '})]},
-   'Bride à moyeu taraudée – type 13','Collet à souder (stub end) pour bride libre']});
+   'Bride à moyeu taraudée – type 13','Collerette emboutie à souder (pour bride tournante)']});
 add({cat:'bride',grp:'ASME B16.5',title:'Brides ASME B16.5',norm:'ASME B16.5',unit:'pièces',mats:['acier A105','inox F316L','inox F304L','acier galvanisé'],sizes:NPSF,
   opts:[O('cl','Classe',['Class 150','Class 300','Class 600','Class 900'],'Class 150'),O('face','Face',['RF (surface de joint surélevée)','FF (face plate)','RTJ'],'RF (surface de joint surélevée)',{lab:'face '})],
-  pieces:['Bride WN (à collerette à souder)','Bride SO (à glissement)','Bride pleine (blind)','Bride taraudée (threaded)','Bride SW (à emboîtement)','Bride libre (lap joint) + collet']});
+  pieces:['Bride WN (à collerette à souder)','Bride SO (à glissement)','Bride pleine (blind)','Bride taraudée (threaded)','Bride SW (à emboîtement)','Bride tournante (lap joint) + collerette emboutie']});
 add({cat:'bride',grp:'Joints',title:'Joints de bride',norm:'EN 1514-1 / EN 12560-2',unit:'pièces',sizes:ISO.filter(s=>s.dn<=600).map(s=>({t:`DN${s.dn}`,d:`DN${s.dn}`})),
   opts:[O('pn','Pression',['PN6','PN10','PN16','PN25','PN40','Class 150','Class 300'],'PN16'),O('mj','Matière',['fibres sans amiante (Klingersil)','graphite','PTFE','EPDM','NBR','spiralé inox 316L / graphite','spiralé inox 316L / PTFE'])],
   pieces:['Joint plat – EN 1514-1 (type IBC)','Joint spiralé – EN 12560-2 / ASME B16.20','Joint PTFE enveloppé','Joint EPDM alimentaire','Kit isolant de bride (joint + manchons + rondelles isolantes)']});
@@ -358,7 +358,7 @@ const act=()=>S.demandes.find(d=>d.id===S.activeId)||null;
 function exampleState(){
   const d={id:uid(),objet:'Exemple – chantier atelier (à vider)',four:'',ex:true,lines:[
     {id:uid(),cat:'tube',famId:'f0',famTitle:'Tube inox – ISO 1127',norm:'EN 10217-7 soudé / EN 10216-5 sans soudure',name:'Tube inox',dim:'Ø60,3 × 2 mm (DN50)',spec:'inox 304L (1.4307), soudé',ref:'',qty:12,unit:'m',note:''},
-    {id:uid(),cat:'bw',famId:'f8',famTitle:'Raccords inox à souder bout à bout',norm:'EN 10253-4 / ASME B16.9',name:'Coude 90° grand rayon (R = 1,5 DN)',dim:'DN50 (Ø60,3)',spec:'inox 304L (1.4307), Sch 10S, soudé (type B)',ref:'',qty:8,unit:'pièces',note:''},
+    {id:uid(),cat:'bw',famId:'f8',famTitle:'Raccords inox à souder bout à bout',norm:'EN 10253-4 / ASME B16.9',name:'Coude 90°',dim:'DN50 (Ø60,3)',spec:'inox 304L (1.4307), 2 mm, soudé (type B)',ref:'',qty:8,unit:'pièces',note:''},
     {id:uid(),cat:'alim',famId:'f10',famTitle:'Raccords SMS',norm:'SMS 1145 / SMS 3008',name:'Raccord SMS complet (femelle + mâle + écrou + joint)',dim:'SMS 38 (Ø38 × 1,2)',spec:'inox 304L (1.4307), joint EPDM',ref:'',qty:6,unit:'pièces',note:''}
   ]};
   return {v:1,demandes:[d],activeId:d.id,custom:[],cert:true};
