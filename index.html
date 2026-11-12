@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Demandes de prix tuyauterie</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: 3 colonnes (catalogue | saisie en grille | demande), onglets sur téléphone.
+   Palette: crème de l'appli rapport hebdo + rouge #E8432E, acier pour les repères techniques. */
+:root{
+  --bg:#F6F1E6; --card:#FFFCF5; --ink:#201C17; --mute:#6D6558; --line:#DDD3C0; --soft:#EDE5D3;
+  --accent:#E8432E; --accent-ink:#FFFFFF; --steel:#2F4F63; --steel-bg:#DDE7EC; --ok:#2E7D4F; --ok-bg:#DCEEDF;
+  --warn-bg:#F9E3B8; --warn:#7A5200;
+  --f-head:'Barlow Condensed','Arial Narrow',sans-serif; --f-body:'Barlow','Segoe UI',system-ui,sans-serif; --f-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#17140F; --card:#221E18; --ink:#F2ECDF; --mute:#A39A89; --line:#3A342A; --soft:#2C271F;
+  --accent:#FF6B4E; --accent-ink:#1A0F0B; --steel:#9DC3D8; --steel-bg:#22343F; --ok:#6FCB92; --ok-bg:#1F3326;
+  --warn-bg:#40320F; --warn:#F0C46A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#17140F; --card:#221E18; --ink:#F2ECDF; --mute:#A39A89; --line:#3A342A; --soft:#2C271F;
+  --accent:#FF6B4E; --accent-ink:#1A0F0B; --steel:#9DC3D8; --steel-bg:#22343F; --ok:#6FCB92; --ok-bg:#1F3326;
+  --warn-bg:#40320F; --warn:#F0C46A; color-scheme:dark}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 var(--f-body);
+  padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));
+  padding-block:10px}
+button,input,select,textarea{font:inherit;color:inherit}
+.app{height:100%;display:flex;flex-direction:column;gap:10px;min-height:0}
+header.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header.top h1{font:700 26px/1 var(--f-head);letter-spacing:.02em;text-transform:uppercase;margin:0}
+header.top h1 span{color:var(--accent)}
+.sync{margin-left:auto;font-size:12px;color:var(--mute)}
+.tabs{display:none;gap:6px}
+.tabs button{flex:1;padding:9px 6px;border:1px solid var(--line);background:var(--card);border-radius:6px;font-weight:600;position:relative}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.badge{display:inline-block;min-width:20px;padding:0 6px;border-radius:10px;background:var(--accent);color:var(--accent-ink);font-size:12px;margin-left:4px}
+main{flex:1;min-height:0;display:grid;grid-template-columns:270px minmax(0,1fr) 400px;gap:10px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:8px;min-height:0;min-width:0;display:flex;flex-direction:column}
+.panel>.scroll{overflow:auto;flex:1;min-height:0;padding:12px}
+.ph{padding:10px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+.ph h2{margin:0;font:700 17px/1 var(--f-head);letter-spacing:.04em;text-transform:uppercase}
+input[type=text],input[type=search],input[type=number],select,textarea{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:6px;background:var(--bg);min-width:0}
+input:focus-visible,select:focus-visible,button:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+label.f{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mute);font-weight:600;text-transform:uppercase;letter-spacing:.04em;min-width:0}
+label.f>select,label.f>input{text-transform:none;letter-spacing:0;font-weight:400;color:var(--ink);font-size:15px}
+.btn{padding:8px 12px;border:1px solid var(--line);background:var(--card);border-radius:6px;cursor:pointer;font-weight:600}
+.btn:hover{border-color:var(--ink)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.pri:hover{filter:brightness(.94)}
+.btn.sm{padding:4px 8px;font-size:13px}
+.btn[disabled]{opacity:.45;cursor:default}
+.x{border:none;background:none;color:var(--mute);cursor:pointer;padding:2px 6px;font-size:18px;line-height:1}
+.x:hover{color:var(--accent)}
+
+/* nav */
+.nav details{border-bottom:1px solid var(--line)}
+.nav summary{cursor:pointer;padding:9px 2px;font:700 16px var(--f-head);letter-spacing:.05em;text-transform:uppercase;list-style:none;display:flex;justify-content:space-between}
+.nav summary::-webkit-details-marker{display:none}
+.nav summary::after{content:"+";color:var(--mute)}
+.nav details[open]>summary::after{content:"–"}
+.nav .grp{font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;margin:8px 0 3px;font-weight:600}
+.nav .fam{display:block;width:100%;text-align:left;padding:6px 8px;border:none;background:none;border-radius:5px;cursor:pointer;line-height:1.25}
+.nav .fam:hover{background:var(--soft)}
+.nav .fam[aria-current="true"]{background:var(--ink);color:var(--bg)}
+.nav .fam small{display:block;color:var(--mute);font-family:var(--f-mono);font-size:11px}
+.nav .fam[aria-current="true"] small{color:var(--bg);opacity:.75}
+.nav .body{padding-bottom:8px}
+
+/* builder */
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;background:var(--steel-bg);color:var(--steel);font:500 12px var(--f-mono)}
+.fh{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.fh h3{margin:0;font:700 24px/1.05 var(--f-head);letter-spacing:.02em}
+.sel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-bottom:12px}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:6px}
+table.grid{border-collapse:collapse;width:100%}
+table.grid th{position:sticky;top:0;background:var(--soft);text-align:left;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--mute);padding:6px 10px}
+table.grid td{padding:4px 10px;border-top:1px solid var(--line)}
+table.grid td.r{font-family:var(--f-mono);font-size:12px;color:var(--mute);white-space:nowrap}
+table.grid input{width:96px;text-align:right;font-variant-numeric:tabular-nums}
+table.grid tr.has td{background:var(--ok-bg)}
+.addbar{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.empty{color:var(--mute);padding:20px;text-align:center}
+.hint{font-size:13px;color:var(--mute)}
+.note{background:var(--warn-bg);color:var(--warn);padding:7px 10px;border-radius:6px;font-size:13px}
+
+/* demande */
+.dsel{display:grid;grid-template-columns:1fr auto;gap:6px}
+.dform{display:grid;gap:8px;margin:10px 0}
+.cat-h{font:700 15px var(--f-head);letter-spacing:.06em;text-transform:uppercase;margin:14px 0 2px;padding-bottom:3px;border-bottom:2px solid var(--ink)}
+.fam-h{font-size:12px;color:var(--steel);font-family:var(--f-mono);margin:8px 0 3px}
+.ln{display:grid;grid-template-columns:minmax(0,1fr) 64px 104px auto;gap:6px;align-items:center;padding:5px 0;border-bottom:1px dashed var(--line)}
+.ln .t{font-size:14px;min-width:0;overflow-wrap:anywhere}
+.ln .t em{color:var(--mute);font-style:normal;font-size:12px;font-family:var(--f-mono)}
+.ln input,.ln select{padding:4px 6px;font-size:14px}
+.ln input{text-align:right}
+.mail{width:100%;min-height:230px;font:12.5px/1.5 var(--f-mono);resize:vertical;white-space:pre}
+.row{display:flex;gap:6px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:6px;z-index:20;font-size:14px;max-width:90vw}
+.free{display:grid;gap:8px;padding:10px;border:1px dashed var(--line);border-radius:6px;margin-top:10px}
+.chk{display:flex;gap:8px;align-items:center;font-size:14px}
+.chk input{width:auto}
+
+@media (max-width:1180px){
+  .tabs{display:flex}
+  main{grid-template-columns:minmax(0,1fr)}
+  main>.panel{display:none}
+  [data-view="nav"] #p-nav,[data-view="build"] #p-build,[data-view="dem"] #p-dem{display:flex}
+}
+@media (max-width:520px){
+  .ln{grid-template-columns:minmax(0,1fr) 60px 92px auto}
+  header.top h1{font-size:22px}
+}
+@media (prefers-reduced-motion:no-preference){.toast{animation:in .15s ease-out}@keyframes in{from{opacity:0;transform:translate(-50%,6px)}}}
+</style>
+
+</head><body>
+<div class="app" id="app" data-view="build">
+  <header class="top">
+    <h1>Demandes de prix <span>tuyauterie</span></h1>
+    <span class="sync" id="sync" aria-live="polite"></span>
+  </header>
+  <div class="tabs" role="tablist" id="tabs">
+    <button role="tab" data-v="nav" aria-selected="false">Catalogue</button>
+    <button role="tab" data-v="build" aria-selected="true">Saisie</button>
+    <button role="tab" data-v="dem" aria-selected="false">Demande<span class="badge" id="badge">0</span></button>
+  </div>
+  <main>
+    <section class="panel" id="p-nav" aria-label="Catalogue">
+      <div class="ph"><h2>Catalogue</h2></div>
+      <div class="scroll nav">
+        <input type="search" id="q" placeholder="Rechercher : SMS, bride, DN50, papillon…" aria-label="Rechercher dans le catalogue">
+        <div id="navlist"></div>
+      </div>
+    </section>
+    <section class="panel" id="p-build" aria-label="Saisie des quantités">
+      <div class="scroll" id="build"></div>
+      <div class="addbar" id="addbar"></div>
+    </section>
+    <section class="panel" id="p-dem" aria-label="Demande en cours">
+      <div class="ph"><h2>Demande en cours</h2></div>
+      <div class="scroll" id="dem"></div>
+    </section>
+  </main>
+</div>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+window.SERTI=[{"title": "Tuyauterie 304 L", "items": [{"t": "Ø108 × 2 mm", "d": "Ø108 × 2 mm", "ref": "304 02 075 108 2"}, {"t": "Ø88,9 × 2 mm", "d": "Ø88,9 × 2 mm", "ref": "304 02 075 88.9 2"}, {"t": "Ø76 × 2 mm", "d": "Ø76 × 2 mm", "ref": "304 02 075 76.1 2"}, {"t": "Ø54 × 1,5 mm", "d": "Ø54 × 1,5 mm", "ref": "304 02 075 54 1.5"}, {"t": "Ø42 × 1,5 mm", "d": "Ø42 × 1,5 mm", "ref": "304 02 075 42 1.5"}, {"t": "Ø35 × 1,5 mm", "d": "Ø35 × 1,5 mm", "ref": "304 02 075 35 1.5"}, {"t": "Ø28 × 1,5 mm", "d": "Ø28 × 1,5 mm", "ref": "304 02 075 28 1.5"}, {"t": "Ø22 × 1,2 mm", "d": "Ø22 × 1,2 mm", "ref": "304 02 075 22 1.2"}, {"t": "Ø18 × 1 mm", "d": "Ø18 × 1 mm", "ref": "304 02 075 18 1"}, {"t": "Ø15 × 1 mm", "d": "Ø15 × 1 mm", "ref": "304 02 075 15 1"}]}, {"title": "Tuyauterie 316 L", "items": [{"t": "Ø108 × 2 mm", "d": "Ø108 × 2 mm", "ref": "317 02 075 108 2"}, {"t": "Ø88,9 × 2 mm", "d": "Ø88,9 × 2 mm", "ref": "317 02 075 88.9 2"}, {"t": "Ø76 × 2 mm", "d": "Ø76 × 2 mm", "ref": "317 02 075 76.1 2"}, {"t": "Ø54 × 1,5 mm", "d": "Ø54 × 1,5 mm", "ref": "317 02 075 54 1.5"}, {"t": "Ø42 × 1,5 mm", "d": "Ø42 × 1,5 mm", "ref": "317 02 075 42 1.5"}, {"t": "Ø35 × 1,5 mm", "d": "Ø35 × 1,5 mm", "ref": "317 02 075 35 1.5"}, {"t": "Ø28 × 1,5 mm", "d": "Ø28 × 1,5 mm", "ref": "317 02 075 28 1.5"}, {"t": "Ø22 × 1,2 mm", "d": "Ø22 × 1,2 mm", "ref": "317 02 075 22 1.2"}, {"t": "Ø18 × 1 mm", "d": "Ø18 × 1 mm", "ref": "317 02 075 18 1"}, {"t": "Ø15 × 1 mm", "d": "Ø15 × 1 mm", "ref": "317 02 075 15 1"}]}, {"title": "Coude FF 90 Degré", "items": [{"t": "Ø108", "d": "Ø108", "ref": "317 05 355 108"}, {"t": "Ø88,9", "d": "Ø88,9", "ref": "317 05 355 88.9"}, {"t": "Ø76", "d": "Ø76", "ref": "317 05 355 76"}, {"t": "Ø54", "d": "Ø54", "ref": "317 05 355 54"}, {"t": "Ø42", "d": "Ø42", "ref": "317 05 355 42"}, {"t": "Ø35", "d": "Ø35", "ref": "317 05 355 35"}, {"t": "Ø28", "d": "Ø28", "ref": "317 05 355 28"}, {"t": "Ø22", "d": "Ø22", "ref": "317 05 355 22"}, {"t": "Ø18", "d": "Ø18", "ref": "317 05 355 18"}, {"t": "Ø15", "d": "Ø15", "ref": "317 05 355 15"}]}, {"title": "Coude FF 45 Degré", "items": [{"t": "Ø108", "d": "Ø108", "ref": "317 05 358 108"}, {"t": "Ø88,9", "d": "Ø88,9", "ref": "317 05 358 88.9"}, {"t": "Ø76", "d": "Ø76", "ref": "317 05 358 76"}, {"t": "Ø54", "d": "Ø54", "ref": "317 05 358 54"}, {"t": "Ø42", "d": "Ø42", "ref": "317 05 358 42"}, {"t": "Ø35", "d": "Ø35", "ref": "317 05 358 35"}, {"t": "Ø28", "d": "Ø28", "ref": "317 05 358 28"}, {"t": "Ø22", "d": "Ø22", "ref": "317 05 358 22"}, {"t": "Ø18", "d": "Ø18", "ref": "317 05 358 18"}, {"t": "Ø15", "d": "Ø15", "ref": "317 05 358 15"}]}, {"title": "Tés égal", "items": [{"t": "Ø108", "d": "Ø108", "ref": "317 05 360 108"}, {"t": "Ø88,9", "d": "Ø88,9", "ref": "317 05 360 88.9"}, {"t": "Ø76", "d": "Ø76", "ref": "317 05 360 76"}, {"t": "Ø54", "d": "Ø54", "ref": "317 05 360 54"}, {"t": "Ø42", "d": "Ø42", "ref": "317 05 360 42"}, {"t": "Ø35", "d": "Ø35", "ref": "317 05 360 35"}, {"t": "Ø28", "d": "Ø28", "ref": "317 05 360 28"}, {"t": "Ø22", "d": "Ø22", "ref": "317 05 360 22"}, {"t": "Ø18", "d": "Ø18", "ref": "317 05 360 18"}, {"t": "Ø15", "d": "Ø15", "ref": "317 05 360 15"}]}, {"title": "Tés reduits", "items": [{"t": "18/15", "d": "18/15", "ref": "317 05 361 18 15"}, {"t": "22/15", "d": "22/15", "ref": "317 05 361 22 15"}, {"t": "22/18", "d": "22/18", "ref": "317 05 361 22 18"}, {"t": "28/15", "d": "28/15", "ref": "317 05 361 28 15"}, {"t": "28/18", "d": "28/18", "ref": "317 05 361 28 18"}, {"t": "28/22", "d": "28/22", "ref": "317 05 361 28 22"}, {"t": "35/15", "d": "35/15", "ref": "317 05 361 35 15"}, {"t": "35/18", "d": "35/18", "ref": "317 05 361 35 18"}, {"t": "35/22", "d": "35/22", "ref": "317 05 361 35 22"}, {"t": "35/28", "d": "35/28", "ref": "317 05 361 35 28"}, {"t": "42/15", "d": "42/15", "ref": "317 05 361 42 15"}, {"t": "42/18", "d": "42/18", "ref": "317 05 361 42 18"}, {"t": "42/22", "d": "42/22", "ref": "317 05 361 42 22"}, {"t": "42/28", "d": "42/28", "ref": "317 05 361 42 28"}, {"t": "42/35", "d": "42/35", "ref": "317 05 361 42 35"}, {"t": "54/15", "d": "54/15", "ref": "317 05 361 54 15"}, {"t": "54/18", "d": "54/18", "ref": "317 05 361 54 18"}, {"t": "54/22", "d": "54/22", "ref": "317 05 361 54 22"}, {"t": "54/28", "d": "54/28", "ref": "317 05 361 54 28"}, {"t": "54/35", "d": "54/35", "ref": "317 05 361 54 35"}, {"t": "54/42", "d": "54/42", "ref": "317 05 361 54 42"}, {"t": "76/22", "d": "76/22", "ref": "317 05 361 76.1 22"}, {"t": "76/28", "d": "76/28", "ref": "317 05 361 76.1 28"}, {"t": "76/35", "d": "76/35", "ref": "317 05 361 76.1 35"}, {"t": "76/42", "d": "76/42", "ref": "317 05 361 76.1 42"}, {"t": "76/54", "d": "76/54", "ref": "317 05 361 76.1 54"}, {"t": "88/22", "d": "88/22", "ref": "317 05 361 88.9 22"}, {"t": "88/28", "d": "88/28", "ref": "317 05 361 88.9 28"}, {"t": "88/35", "d": "88/35", "ref": "317 05 361 88.9 35"}, {"t": "88/42", "d": "88/42", "ref": "317 05 361 88.9 42"}, {"t": "88/54", "d": "88/54", "ref": "317 05 361 88.9 54"}, {"t": "88/76", "d": "88/76", "ref": "317 05 361 88.9 76.1"}, {"t": "108/22", "d": "108/22", "ref": "317 05 361 108 22"}, {"t": "108/28", "d": "108/28", "ref": "317 05 361 108 28"}, {"t": "108/35", "d": "108/35", "ref": "317 05 361 108 35"}, {"t": "108/42", "d": "108/42", "ref": "317 05 361 108 42"}, {"t": "108/54", "d": "108/54", "ref": "317 05 361 108 54"}, {"t": "108/76", "d": "108/76", "ref": "317 05 361 108 76.1"}, {"t": "108/88", "d": "108/88", "ref": "317 05 361 108 88.9"}]}, {"title": "Manchon", "items": [{"t": "Ø108", "d": "Ø108", "ref": "317 05 365 108"}, {"t": "Ø88,9", "d": "Ø88,9", "ref": "317 05 365 88.9"}, {"t": "Ø76", "d": "Ø76", "ref": "317 05 365 76"}, {"t": "Ø54", "d": "Ø54", "ref": "317 05 365 54"}, {"t": "Ø42", "d": "Ø42", "ref": "317 05 365 42"}, {"t": "Ø35", "d": "Ø35", "ref": "317 05 365 35"}, {"t": "Ø28", "d": "Ø28", "ref": "317 05 365 28"}, {"t": "Ø22", "d": "Ø22", "ref": "317 05 365 22"}, {"t": "Ø18", "d": "Ø18", "ref": "317 05 365 18"}, {"t": "Ø15", "d": "Ø15", "ref": "317 05 365 15"}]}, {"title": "Mamelon mixte F/ Filetage M", "items": [{"t": "15 x 1/2\"", "d": "15 x 1/2\"", "ref": "317 05 350 15 0.5"}, {"t": "15 x 3/4\"", "d": "15 x 3/4\"", "ref": "317 05 350 15 0.75"}, {"t": "18 x 1/2\"", "d": "18 x 1/2\"", "ref": "317 05 350 18 0.5"}, {"t": "18 x 3/4\"", "d": "18 x 3/4\"", "ref": "317 05 350 18 0.75"}, {"t": "22 x 1/2\"", "d": "22 x 1/2\"", "ref": "317 05 350 22 0.5"}, {"t": "22 x 3/4\"", "d": "22 x 3/4\"", "ref": "317 05 350 22 0.75"}, {"t": "22 x 1\"", "d": "22 x 1\"", "ref": "317 05 350 22 1"}, {"t": "28 x 3/4\"", "d": "28 x 3/4\"", "ref": "317 05 350 28 0.75"}, {"t": "28 x 1\"", "d": "28 x 1\"", "ref": "317 05 350 28 1"}, {"t": "28 x 1 1/4\"", "d": "28 x 1 1/4\"", "ref": "317 05 350 28 1.25"}, {"t": "35 x 1\"", "d": "35 x 1\"", "ref": "317 05 350 35 1"}, {"t": "35 x 1 1/4\"", "d": "35 x 1 1/4\"", "ref": "317 05 350 35 1.25"}, {"t": "35 x 1 1/2\"", "d": "35 x 1 1/2\"", "ref": "317 05 350 35 1.5"}, {"t": "42 x 1 1/4\"", "d": "42 x 1 1/4\"", "ref": "317 05 350 42 1.25"}, {"t": "42 x 1 1/2\"", "d": "42 x 1 1/2\"", "ref": "317 05 350 42 1.5"}, {"t": "54 x 1 1/2\"", "d": "54 x 1 1/2\"", "ref": "317 05 350 54 1.5"}, {"t": "54 x 2\"", "d": "54 x 2\"", "ref": "317 05 350 54 2"}, {"t": "76,1 x 2 1/2\"", "d": "76,1 x 2 1/2\"", "ref": "317 05 350 76.1 2.5"}, {"t": "88,9 x 3\"", "d": "88,9 x 3\"", "ref": "317 05 350 88.9 3"}, {"t": "108 x 4\"", "d": "108 x 4\"", "ref": "317 05 350 108 4"}]}, {"title": "Reduction MF", "items": [{"t": "18 x 15", "d": "18 x 15", "ref": "317 05 370 18 15"}, {"t": "22 x 15", "d": "22 x 15", "ref": "317 05 370 22 15"}, {"t": "22 x 18", "d": "22 x 18", "ref": "317 05 370 22 18"}, {"t": "28 x 15", "d": "28 x 15", "ref": "317 05 370 28 15"}, {"t": "28 x 18", "d": "28 x 18", "ref": "317 05 370 28 18"}, {"t": "28 x 22", "d": "28 x 22", "ref": "317 05 370 28 22"}, {"t": "35 x 15", "d": "35 x 15", "ref": "317 05 370 35 15"}, {"t": "35 x 18", "d": "35 x 18", "ref": "317 05 370 35 18"}, {"t": "35 x 22", "d": "35 x 22", "ref": "317 05 370 35 22"}, {"t": "35 x 28", "d": "35 x 28", "ref": "317 05 370 35 28"}, {"t": "42 x 15", "d": "42 x 15", "ref": "317 05 370 42 15"}, {"t": "42 x 18", "d": "42 x 18", "ref": "317 05 370 42 18"}, {"t": "42 x 22", "d": "42 x 22", "ref": "317 05 370 42 22"}, {"t": "42 x 28", "d": "42 x 28", "ref": "317 05 370 42 28"}, {"t": "42 x 35", "d": "42 x 35", "ref": "317 05 370 42 35"}, {"t": "54 x 15", "d": "54 x 15", "ref": "317 05 370 54 15"}, {"t": "54 x 18", "d": "54 x 18", "ref": "317 05 370 54 18"}, {"t": "54 x 22", "d": "54 x 22", "ref": "317 05 370 54 22"}, {"t": "54 x 28", "d": "54 x 28", "ref": "317 05 370 54 28"}, {"t": "54 x 35", "d": "54 x 35", "ref": "317 05 370 54 35"}, {"t": "54 x 42", "d": "54 x 42", "ref": "317 05 370 54 42"}, {"t": "76,1 x 22", "d": "76,1 x 22", "ref": "317 05 370 76.1 22"}, {"t": "76,1 x 28", "d": "76,1 x 28", "ref": "317 05 370 76.1 28"}, {"t": "76,1 x 35", "d": "76,1 x 35", "ref": "317 05 370 76.1 35"}, {"t": "76,1 x 42", "d": "76,1 x 42", "ref": "317 05 370 76.1 42"}, {"t": "76,1 x 54", "d": "76,1 x 54", "ref": "317 05 370 76.1 54"}, {"t": "88,9 x 42", "d": "88,9 x 42", "ref": "317 05 370 88.9 42"}, {"t": "88,9 x 54", "d": "88,9 x 54", "ref": "317 05 370 88.9 54"}]}, {"title": "Mamelon mixte F/ Filetage F", "items": [{"t": "15 x 1/2\"", "d": "15 x 1/2\"", "ref": "317 05 351 15 0.5"}, {"t": "15 x 3/4\"", "d": "15 x 3/4\"", "ref": "317 05 351 15 0.75"}, {"t": "18 x 1/2\"", "d": "18 x 1/2\"", "ref": "317 05 351 18 0.5"}, {"t": "18 x 3/4\"", "d": "18 x 3/4\"", "ref": "317 05 351 18 0.75"}, {"t": "22 x 1/2\"", "d": "22 x 1/2\"", "ref": "317 05 351 22 0.5"}, {"t": "22 x 3/4\"", "d": "22 x 3/4\"", "ref": "317 05 351 22 0.75"}, {"t": "22 x 1\"", "d": "22 x 1\"", "ref": "317 05 351 22 1"}, {"t": "28 x 3/4\"", "d": "28 x 3/4\"", "ref": "317 05 351 28 0.75"}, {"t": "28 x 1\"", "d": "28 x 1\"", "ref": "317 05 351 28 1"}, {"t": "28 x 1 1/4\"", "d": "28 x 1 1/4\"", "ref": "317 05 351 28 1.25"}, {"t": "35 x 1\"", "d": "35 x 1\"", "ref": "317 05 351 35 1"}, {"t": "35 x 1 1/4\"", "d": "35 x 1 1/4\"", "ref": "317 05 351 35 1.25"}, {"t": "35 x 1 1/2\"", "d": "35 x 1 1/2\"", "ref": "317 05 351 35 1.5"}, {"t": "42 x 1 1/4\"", "d": "42 x 1 1/4\"", "ref": "317 05 351 42 1.25"}, {"t": "42 x 1 1/2\"", "d": "42 x 1 1/2\"", "ref": "317 05 351 42 1.5"}, {"t": "54 x 1 1/2\"", "d": "54 x 1 1/2\"", "ref": "317 05 351 54 1.5"}, {"t": "54 x 2\"", "d": "54 x 2\"", "ref": "317 05 351 54 2"}, {"t": "76,1 x 2 1/2\"", "d": "76,1 x 2 1/2\"", "ref": "317 05 351 76.1 2.5"}, {"t": "88,9 x 3\"", "d": "88,9 x 3\"", "ref": "317 05 351 88.9 3"}]}, {"title": "Bride TOURNANTE pn10/16", "items": [{"t": "DN 50 - 54mm", "d": "DN 50 - 54mm", "ref": "317 05 397 54"}, {"t": "DN 65 - 76,1mm", "d": "DN 65 - 76,1mm", "ref": "317 05 397 76.1"}, {"t": "DN 80 - 88,9mm", "d": "DN 80 - 88,9mm", "ref": "317 05 397 88.9"}, {"t": "DN 100 - 108mm", "d": "DN 100 - 108mm", "ref": "317 05 397 108"}]}, {"title": "Bride PLEINE pn10/16", "items": [{"t": "DN 12 - 15mm", "d": "DN 12 - 15mm", "ref": "317 05 378 12 15"}, {"t": "DN 15 - 18mm", "d": "DN 15 - 18mm", "ref": "317 05 378 15 18"}, {"t": "DN 20 - 22mm", "d": "DN 20 - 22mm", "ref": "317 05 378 20 22"}, {"t": "DN 25 - 28mm", "d": "DN 25 - 28mm", "ref": "317 05 378 25 28"}, {"t": "DN 32 - 35mm", "d": "DN 32 - 35mm", "ref": "317 05 378 32 35"}, {"t": "DN 40 - 42mm", "d": "DN 40 - 42mm", "ref": "317 05 378 40 42"}, {"t": "DN 50 - 54mm", "d": "DN 50 - 54mm", "ref": "317 05 378 50 54"}, {"t": "DN 65 - 76,1mm", "d": "DN 65 - 76,1mm", "ref": "317 05 378 65 76.1"}, {"t": "DN 80 - 88,9mm", "d": "DN 80 - 88,9mm", "ref": "317 05 378 80 88.9"}, {"t": "DN 100 - 108mm", "d": "DN 100 - 108mm", "ref": "317 05 378 100 108"}]}, {"title": "CROSSE D'Eveque", "items": [{"t": "Ø15", "d": "Ø15", "ref": "317 05 382 15"}, {"t": "Ø18", "d": "Ø18", "ref": "317 05 382 18"}, {"t": "Ø22", "d": "Ø22", "ref": "317 05 382 22"}, {"t": "Ø28", "d": "Ø28", "ref": "317 05 382 28"}]}, {"title": "Bouchon femelle", "items": [{"t": "Ø15", "d": "Ø15", "ref": "317 05 375 15"}, {"t": "Ø18", "d": "Ø18", "ref": "317 05 375 18"}, {"t": "Ø22", "d": "Ø22", "ref": "317 05 375 22"}, {"t": "Ø28", "d": "Ø28", "ref": "317 05 375 28"}, {"t": "Ø35", "d": "Ø35", "ref": "317 05 375 35"}, {"t": "Ø42", "d": "Ø42", "ref": "317 05 375 42"}, {"t": "Ø54", "d": "Ø54", "ref": "317 05 375 54"}, {"t": "Ø76,1", "d": "Ø76,1", "ref": "317 05 375 76.1"}, {"t": "Ø88,9", "d": "Ø88,9", "ref": "317 05 375 88.9"}, {"t": "Ø108", "d": "Ø108", "ref": "317 05 375 108"}]}, {"title": "Tés Mixte filetage femelle", "items": [{"t": "15 x 1/2\"", "d": "15 x 1/2\"", "ref": "317 05 362 15 0.5"}, {"t": "18 x 1/2\"", "d": "18 x 1/2\"", "ref": "317 05 362 18 0.5"}, {"t": "18 x 3/4\"", "d": "18 x 3/4\"", "ref": "317 05 362 18 0.75"}, {"t": "22 x 1/2\"", "d": "22 x 1/2\"", "ref": "317 05 362 22 0.5"}, {"t": "22 x 3/4\"", "d": "22 x 3/4\"", "ref": "317 05 362 22 0.75"}, {"t": "28 x 1/2\"", "d": "28 x 1/2\"", "ref": "317 05 362 28 0.5"}, {"t": "28 x 3/4\"", "d": "28 x 3/4\"", "ref": "317 05 362 28 0.75"}, {"t": "28 x 1\"", "d": "28 x 1\"", "ref": "317 05 362 28 1"}, {"t": "35 x 1/2\"", "d": "35 x 1/2\"", "ref": "317 05 362 35 0.5"}, {"t": "35 x 3/4\"", "d": "35 x 3/4\"", "ref": "317 05 362 35 0.75"}, {"t": "35 x 1\"", "d": "35 x 1\"", "ref": "317 05 362 35 1"}, {"t": "35 x 1 1/4\"", "d": "35 x 1 1/4\"", "ref": "317 05 362 35 1.25"}, {"t": "42 x 1/2\"", "d": "42 x 1/2\"", "ref": "317 05 362 42 0.5"}, {"t": "42 x 3/4\"", "d": "42 x 3/4\"", "ref": "317 05 362 42 0.75"}, {"t": "42 x 1\"", "d": "42 x 1\"", "ref": "317 05 362 42 1"}, {"t": "42 x 1 1/2\"", "d": "42 x 1 1/2\"", "ref": "317 05 362 42 1.5"}, {"t": "54 x 1/2\"", "d": "54 x 1/2\"", "ref": "317 05 362 54 0.5"}, {"t": "54 x 3/4\"", "d": "54 x 3/4\"", "ref": "317 05 362 54 0.75"}, {"t": "54 x 1\"", "d": "54 x 1\"", "ref": "317 05 362 54 1"}, {"t": "54 x 2\"", "d": "54 x 2\"", "ref": "317 05 362 54 2"}, {"t": "76,1 x 3/4\"", "d": "76,1 x 3/4\"", "ref": "317 05 362 76.1 0.75"}, {"t": "76,1 x 2\"", "d": "76,1 x 2\"", "ref": "317 05 362 76.1 2"}, {"t": "88,9 x 3/4\"", "d": "88,9 x 3/4\"", "ref": "317 05 362 88.9 0.75"}, {"t": "88,9 x 2\"", "d": "88,9 x 2\"", "ref": "317 05 362 88.9 2"}, {"t": "108 x 3/4\"", "d": "108 x 3/4\"", "ref": "317 05 362 108 0.75"}, {"t": "108 x 2\"", "d": "108 x 2\"", "ref": "317 05 362 108 2"}]}, {"title": "Raccords union m / Femelle serti", "items": [{"t": "15 x 1/2\"", "d": "15 x 1/2\"", "ref": "317 05 354 15 0.5"}, {"t": "15 x 3/4\"", "d": "15 x 3/4\"", "ref": "317 05 354 15 0.75"}, {"t": "18 x 1/2\"", "d": "18 x 1/2\"", "ref": "317 05 354 18 0.5"}, {"t": "18 x 3/4\"", "d": "18 x 3/4\"", "ref": "317 05 354 18 0.75"}, {"t": "22 x 3/4\"", "d": "22 x 3/4\"", "ref": "317 05 354 22 0.75"}, {"t": "22 x 1\"", "d": "22 x 1\"", "ref": "317 05 354 22 1"}, {"t": "28 x 1\"", "d": "28 x 1\"", "ref": "317 05 354 28 1"}, {"t": "28 x 1 1/4\"", "d": "28 x 1 1/4\"", "ref": "317 05 354 28 1.25"}, {"t": "35 x 1 1/4\"", "d": "35 x 1 1/4\"", "ref": "317 05 354 35 1.25"}, {"t": "42 x 1 1/2\"", "d": "42 x 1 1/2\"", "ref": "317 05 354 42 1.5"}, {"t": "54 x 2\"", "d": "54 x 2\"", "ref": "317 05 354 54 2"}]}];
+</script>
+<script>
+(function(){
+'use strict';
+const f = n => String(n).replace('.', ',');
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const uid = () => Math.random().toString(36).slice(2,9);
+
+/* ---------- Catégories ---------- */
+const CATS = [
+ {id:'tube', t:'Tubes'},
+ {id:'bw',   t:'Raccords à souder'},
+ {id:'alim', t:'Raccords alimentaires'},
+ {id:'serti',t:'Raccords à sertir inox'},
+ {id:'bride',t:'Brides et joints'},
+ {id:'robi', t:'Robinetterie'},
+ {id:'fil',  t:'Raccords filetés et emboîtement'},
+ {id:'div',  t:'Piquages et accessoires'},
+ {id:'plat', t:'Tôles, plats et profilés'},
+ {id:'supp', t:'Supportage et visserie'},
+ {id:'sou',  t:'Consommables soudage'}
+];
+const CATN = Object.fromEntries(CATS.map(c=>[c.id,c.t]));
+
+/* ---------- Dimensions ---------- */
+const mk = (dn,od,extra)=>Object.assign({t:`DN${dn} – Ø${f(od)}`, d:`DN${dn} (Ø${f(od)})`, dn, od}, extra||{});
+const ISO = [[10,17.2],[15,21.3],[20,26.9],[25,33.7],[32,42.4],[40,48.3],[50,60.3],[65,76.1],[80,88.9],[100,114.3],[125,139.7],[150,168.3],[200,219.1],[250,273],[300,323.9],[350,355.6],[400,406.4],[450,457],[500,508],[600,610]].map(a=>mk(a[0],a[1]));
+const isoR = (a,b)=>ISO.filter(s=>s.dn>=a&&s.dn<=b);
+const ASME = [[15,21.3,'1/2"'],[20,26.7,'3/4"'],[25,33.4,'1"'],[32,42.2,'1" 1/4'],[40,48.3,'1" 1/2'],[50,60.3,'2"'],[65,73,'2" 1/2'],[80,88.9,'3"'],[100,114.3,'4"'],[125,141.3,'5"'],[150,168.3,'6"'],[200,219.1,'8"'],[250,273.1,'10"'],[300,323.9,'12"'],[350,355.6,'14"'],[400,406.4,'16"']].map(a=>({t:`DN${a[0]} (${a[2]}) – Ø${f(a[1])}`, d:`DN${a[0]} (${a[2]}, Ø${f(a[1])})`, dn:a[0], od:a[1]}));
+const MET = [12,15,18,22,28,35,42,54,76.1,88.9,108,133,159,219.1].map(od=>({t:`Ø${f(od)}`, d:`Ø${f(od)}`, od}));
+const DIN = [[10,13,1.5],[15,19,1.5],[20,23,1.5],[25,29,1.5],[32,35,1.5],[40,41,1.5],[50,53,1.5],[65,70,2],[80,85,2],[100,104,2],[125,129,2],[150,154,2]].map(a=>({t:`DN${a[0]} – ${f(a[1])} × ${f(a[2])}`, d:`DN${a[0]} (${f(a[1])} × ${f(a[2])})`, dn:a[0]}));
+const SMS = [[25,1.2],[38,1.2],[51,1.2],[63.5,1.6],[76.1,1.6],[104,2]].map(a=>({t:`SMS ${f(a[0])} – Ø${f(a[0])} × ${f(a[1])}`, d:`SMS ${f(a[0])} (Ø${f(a[0])} × ${f(a[1])})`}));
+const INCH = [['1/2"',12.7],['3/4"',19.05],['1"',25.4],['1" 1/2',38.1],['2"',50.8],['2" 1/2',63.5],['3"',76.2],['4"',101.6],['6"',152.4]].map(a=>({t:`${a[0]} – Ø${f(a[1])}`, d:`${a[0]} (Ø${f(a[1])})`, od:a[1]}));
+const E255 = [[8,13.5,2.35],[10,17.2,2.35],[15,21.3,2.65],[20,26.9,2.65],[25,33.7,3.25],[32,42.4,3.25],[40,48.3,3.25],[50,60.3,3.65],[65,76.1,3.65],[80,88.9,4.05],[100,114.3,4.5],[125,139.7,4.85],[150,165.1,4.85]].map(a=>({t:`DN${a[0]} – ${f(a[1])} × ${f(a[2])}`, d:`DN${a[0]} (Ø${f(a[1])} × ${f(a[2])} mm)`}));
+const NPSF = [['1/2"',15],['3/4"',20],['1"',25],['1" 1/4',32],['1" 1/2',40],['2"',50],['2" 1/2',65],['3"',80],['4"',100],['5"',125],['6"',150],['8"',200],['10"',250],['12"',300],['14"',350],['16"',400],['18"',450],['20"',500],['24"',600]].map(a=>({t:`NPS ${a[0]} – DN${a[1]}`, d:`NPS ${a[0]} (DN${a[1]})`}));
+const FIL = [['1/8"',6],['1/4"',8],['3/8"',10],['1/2"',15],['3/4"',20],['1"',25],['1" 1/4',32],['1" 1/2',40],['2"',50],['2" 1/2',65],['3"',80],['4"',100]].map(a=>({t:`${a[0]} – DN${a[1]}`, d:`${a[0]} (DN${a[1]})`}));
+const lst = (arr,suf)=>arr.map(x=>({t:x+(suf||''), d:x+(suf||'')}));
+const Mx = n => lst(['M6','M8','M10','M12','M14','M16','M20','M24','M30'].slice(0, n||9));
+
+/* ---------- Matières et options ---------- */
+const M_I   = ['inox 304L (1.4307)','inox 316L (1.4404)','inox 304 (1.4301)','inox 316 (1.4401)','inox 316Ti (1.4571)','duplex 2205 (1.4462)'];
+const M_I2  = M_I.slice(0,2);
+const M_AT  = ['acier P235GH','acier P265GH','acier S235JR','acier P355N'];
+const M_BR  = ['inox 304L (1.4307)','inox 316L (1.4404)','acier S235JR','acier P250GH','acier galvanisé'];
+const M_CORPS=['fonte EN-GJL-250 (GG25)','fonte EN-GJS-400 (GS)','inox 316 (CF8M)','inox 304 (CF8)','acier (WCB)','bronze'];
+const O = (id,label,vals,def,extra)=>Object.assign({id,label,vals,def:def!=null?def:vals[0]},extra||{});
+const JOINT = O('joint','Joint',['EPDM','silicone','FKM (Viton)','PTFE','NBR (nitrile)'],'EPDM',{lab:'joint '});
+const SCH_I = ['Sch 5S','Sch 10S','Sch 40S','Sch 80S','ép. du tube (à préciser)'];
+const SCH_A = ['Sch 40 (STD)','Sch 80 (XS)','Sch 160','ép. à préciser'];
+const P = (arr)=>arr.map(s=>{ if(typeof s!=='string') return s; return s.endsWith('*')?{n:s.slice(0,-1),two:true}:{n:s}; });
+
+/* ---------- Familles ---------- */
+const FAM=[];
+function add(o){ o.id='f'+FAM.length; if(!o.pieces) o.pieces=[{n:o.title}]; o.pieces=P(o.pieces); FAM.push(o); return o; }
+
+/* TUBES */
+add({cat:'tube',grp:'Tubes inox',title:'Tube inox – ISO 1127',norm:'EN 10217-7 soudé / EN 10216-5 sans soudure',
+  pieces:[{n:'Tube inox'}], mats:M_I, sizes:isoR(10,500), unit:'m',
+  opts:[O('ep','Épaisseur (mm)',['1','1,2','1,5','2','2,5','3','4','5','6'],'2',{inDim:1}), O('ex','Exécution',['soudé','sans soudure'])],
+  dim:(s,s2,o)=>`Ø${f(s.od)} × ${o.ep} mm (DN${s.dn})`});
+add({cat:'tube',grp:'Tubes inox',title:'Tube inox – série métrique (cotes serti)',norm:'ISO 1127',
+  pieces:[{n:'Tube inox'}], mats:M_I, sizes:MET, unit:'m',
+  opts:[O('ep','Épaisseur (mm)',['1','1,2','1,5','2','2,5','3'],'1,5',{inDim:1}), O('ex','Exécution',['soudé','sans soudure'])],
+  dim:(s,s2,o)=>`Ø${f(s.od)} × ${o.ep} mm`});
+add({cat:'tube',grp:'Tubes inox',title:'Tube inox – ASME B36.19M (Sch)',norm:'ASME B36.19M',
+  pieces:[{n:'Tube inox'}], mats:M_I, sizes:ASME, unit:'m',
+  opts:[O('sch','Série',['Sch 5S','Sch 10S','Sch 40S','Sch 80S'],'Sch 10S'), O('ex','Exécution',['soudé','sans soudure'])]});
+add({cat:'tube',grp:'Tubes inox alimentaires',title:'Tube inox – DIN 11850 série 2',norm:'DIN 11850 série 2',
+  pieces:[{n:'Tube inox alimentaire'}], mats:M_I2, sizes:DIN, unit:'m',
+  opts:[O('surf','Surface',['standard','poli intérieur Ra ≤ 0,8 µm','poli intérieur + extérieur'])]});
+add({cat:'tube',grp:'Tubes inox alimentaires',title:'Tube inox – SMS 3008',norm:'SMS 3008',
+  pieces:[{n:'Tube inox SMS'}], mats:M_I2, sizes:SMS, unit:'m',
+  opts:[O('surf','Surface',['standard','poli intérieur Ra ≤ 0,8 µm','poli intérieur + extérieur'])]});
+add({cat:'tube',grp:'Tubes inox alimentaires',title:'Tube inox – ISO 2037 (Ø pouce)',norm:'ISO 2037',
+  pieces:[{n:'Tube inox ISO 2037'}], mats:M_I2, sizes:INCH, unit:'m',
+  opts:[O('ep','Épaisseur (mm)',['1,5','1,6','2','2,5','à préciser'],'1,6',{lab:'ép. ',suf:' mm'})]});
+add({cat:'tube',grp:'Tubes acier',title:'Tube acier noir soudé – EN 10255 série moyenne',norm:'EN 10255 (M)',
+  pieces:[{n:'Tube acier soudé EN 10255'}], sizes:E255, unit:'barres de 6 m',
+  opts:[O('fin','Finition',['noir','galvanisé']), O('ext','Extrémités',['lisses','filetées + 1 manchon'])]});
+add({cat:'tube',grp:'Tubes acier',title:'Tube acier sans soudure – EN 10216-2',norm:'EN 10216-2 (P235GH / P265GH)',
+  pieces:[{n:'Tube acier sans soudure'}], mats:M_AT.slice(0,2), sizes:isoR(15,500), unit:'m',
+  opts:[O('sch','Épaisseur',SCH_A,'Sch 40 (STD)')], dim:(s)=>`Ø${f(s.od)} (DN${s.dn})`});
+
+/* RACCORDS À SOUDER */
+const BW = ['Coude 90° grand rayon (R = 1,5 DN)','Coude 90° petit rayon (R = 1 DN)','Coude 90° R = 3 DN','Coude 45° grand rayon (R = 1,5 DN)','Retour 180° grand rayon (R = 1,5 DN)','Té égal à souder','Té réduit à souder*','Réduction concentrique à souder*','Réduction excentrique à souder*','Fond bombé à souder (calotte)'];
+add({cat:'bw',grp:'Inox',title:'Raccords inox à souder bout à bout',norm:'EN 10253-4 / ASME B16.9',pieces:BW,mats:M_I,sizes:isoR(15,400),unit:'pièces',
+  opts:[O('ep','Épaisseur',SCH_I,'Sch 10S'), O('ex','Exécution',['soudé (type B)','sans soudure (type A)'])]});
+add({cat:'bw',grp:'Acier',title:'Raccords acier à souder bout à bout',norm:'EN 10253-2 / ASME B16.9',pieces:BW,mats:M_AT,sizes:isoR(15,500),unit:'pièces',
+  opts:[O('ep','Épaisseur',SCH_A,'Sch 40 (STD)')]});
+
+/* ALIMENTAIRES */
+const jp = (n,two)=>({n,two,opts:[JOINT]});
+const JOINTM = O('matj','Matière du joint',['EPDM','silicone','FKM (Viton)','PTFE','NBR (nitrile)'],'EPDM',{lab:'joint '});
+add({cat:'alim',grp:'SMS',title:'Raccords SMS',norm:'SMS 1145 / SMS 3008',unit:'pièces',mats:M_I2,sizes:SMS,
+  pieces:[jp('Raccord SMS complet (femelle + mâle + écrou + joint)'),'Mâle SMS à souder','Femelle SMS à souder','Écrou SMS',{n:'Joint SMS',opts:[JOINTM]},jp('Bouchon SMS complet (bouchon + écrou + joint)'),'Coude 90° à souder pour tube SMS','Coude 45° à souder pour tube SMS','Té égal à souder pour tube SMS','Té réduit à souder pour tube SMS*','Réduction concentrique à souder pour tube SMS*']});
+add({cat:'alim',grp:'DIN 11851 (laitier)',title:'Raccords DIN 11851',norm:'DIN 11851 / DIN 11850',unit:'pièces',mats:M_I2,sizes:DIN,
+  pieces:[jp('Raccord laitier complet (mâle + femelle + écrou rond + joint)'),'Mâle DIN 11851 à souder','Femelle DIN 11851 à souder','Écrou rond DIN 11851',{n:'Joint DIN 11851',opts:[JOINTM]},jp('Bouchon DIN 11851 complet'),'Coude 90° à souder DIN 11850','Coude 45° à souder DIN 11850','Té égal à souder DIN 11850','Té réduit à souder DIN 11850*','Réduction concentrique à souder DIN 11850*']});
+const CL = ['Virole clamp à souder','Collier clamp (2 demi-colliers + vis papillon)',{n:'Joint clamp',opts:[JOINTM]},'Bouchon clamp (virole pleine)','Coude 90° clamp (2 viroles soudées)','Té clamp (3 viroles soudées)','Réduction clamp*'];
+add({cat:'alim',grp:'Clamp',title:'Raccords clamp – ISO 2852 (Ø pouce)',norm:'ISO 2852 / ISO 2037',unit:'pièces',mats:M_I2,sizes:INCH,pieces:CL});
+add({cat:'alim',grp:'Clamp',title:'Raccords clamp – DIN 32676 série A',norm:'DIN 32676-A / DIN 11850',unit:'pièces',mats:M_I2,sizes:DIN,pieces:CL});
+
+/* SERTI (références du fichier de demande de prix) */
+(window.SERTI||[]).forEach(sec=>{
+  const tube=/^Tuyauterie/.test(sec.title);
+  const m=/316/.test(sec.title)?'inox 316L (1.4404)':'inox 304L (1.4307)';
+  const title=tube?('Tube inox serti – '+(/316/.test(sec.title)?'316L':'304L')):sec.title.replace(/ Degré/,'°').replace(/^Tés reduits/,'Tés réduits').replace('Reduction MF','Réduction MF').replace('CROSSE D\'Eveque','Crosse d\'évêque').replace('Bride TOURNANTE','Bride tournante').replace('Bride PLEINE','Bride pleine').replace(/^Tuyauterie/,'Tube');
+  add({cat:'serti',grp:'Références du fichier serti',title,norm:'serti inox – réf. fournisseur',unit:tube?'m':'pièces',
+    pieces:[{n:title.replace(/ inox serti.*/,' inox serti')}], fixedMat: tube?m:'inox 316L (réf. 317…)', items:sec.items});
+});
+
+/* BRIDES ET JOINTS */
+const PNs = O('pn','Pression',['PN6','PN10','PN16','PN25','PN40'],'PN16');
+const FACE= O('face','Face',['B1 (portée de joint)','A (face plate)'],'B1 (portée de joint)',{lab:'face '});
+add({cat:'bride',grp:'EN 1092-1',title:'Brides EN 1092-1',norm:'EN 1092-1',unit:'pièces',mats:M_BR,sizes:ISO.filter(s=>s.dn<=600).map(s=>({t:`DN${s.dn}`,d:`DN${s.dn}`})),opts:[PNs,FACE],
+  pieces:['Bride plate à souder – type 01','Bride libre – type 02 (pour collet / collerette)','Bride pleine – type 05','Bride à moyeu à emboîtement – type 12',
+   {n:'Bride à collerette à souder (WN) – type 11',opts:[O('ept','Ép. du tube (alésage)',['Sch 10S','Sch 40S','Sch 80S','2 mm','3 mm','à préciser'],'Sch 10S',{lab:'alésage '})]},
+   'Bride à moyeu taraudée – type 13','Collet à souder (stub end) pour bride libre']});
+add({cat:'bride',grp:'ASME B16.5',title:'Brides ASME B16.5',norm:'ASME B16.5',unit:'pièces',mats:['acier A105','inox F316L','inox F304L','acier galvanisé'],sizes:NPSF,
+  opts:[O('cl','Classe',['Class 150','Class 300','Class 600','Class 900'],'Class 150'),O('face','Face',['RF (surface de joint surélevée)','FF (face plate)','RTJ'],'RF (surface de joint surélevée)',{lab:'face '})],
+  pieces:['Bride WN (à collerette à souder)','Bride SO (à glissement)','Bride pleine (blind)','Bride taraudée (threaded)','Bride SW (à emboîtement)','Bride libre (lap joint) + collet']});
+add({cat:'bride',grp:'Joints',title:'Joints de bride',norm:'EN 1514-1 / EN 12560-2',unit:'pièces',sizes:ISO.filter(s=>s.dn<=600).map(s=>({t:`DN${s.dn}`,d:`DN${s.dn}`})),
+  opts:[O('pn','Pression',['PN6','PN10','PN16','PN25','PN40','Class 150','Class 300'],'PN16'),O('mj','Matière',['fibres sans amiante (Klingersil)','graphite','PTFE','EPDM','NBR','spiralé inox 316L / graphite','spiralé inox 316L / PTFE'])],
+  pieces:['Joint plat – EN 1514-1 (type IBC)','Joint spiralé – EN 12560-2 / ASME B16.20','Joint PTFE enveloppé','Joint EPDM alimentaire','Kit isolant de bride (joint + manchons + rondelles isolantes)']});
+
+/* ROBINETTERIE */
+const DNV = isoR(15,600).map(s=>({t:`DN${s.dn}`,d:`DN${s.dn}`}));
+const dnr = (a,b)=>ISO.filter(s=>s.dn>=a&&s.dn<=b).map(s=>({t:`DN${s.dn}`,d:`DN${s.dn}`}));
+add({cat:'robi',grp:'Vannes',title:'Vanne papillon',norm:'EN 593',unit:'pièces',matLabel:'Corps',mats:M_CORPS,sizes:dnr(32,600),
+  pieces:[{n:'Vanne papillon'}],
+  opts:[O('rac','Raccordement',['wafer (entre brides)','lug (oreilles taraudées)','à double bride','à raccords SMS','à raccords DIN 11851','à raccords clamp','à souder']),
+        O('pel','Pelle',['pelle inox 316 (CF8M)','pelle inox 304','pelle fonte GS revêtue','pelle bronze aluminium']),
+        O('jt','Joint',['EPDM','NBR','FKM (Viton)','PTFE','silicone'],'EPDM',{lab:'joint '}),
+        O('man','Manœuvre',['poignée à crans','réducteur manuel (volant)','pneumatique double effet','pneumatique simple effet (rappel ressort)','électrique'])]});
+add({cat:'robi',grp:'Vannes',title:'Vanne à boisseau sphérique',norm:'EN 12516 / ISO 17292',unit:'pièces',matLabel:'Corps',mats:['inox 316 (CF8M)','inox 304 (CF8)','laiton','acier carbone'],sizes:dnr(10,150),
+  opts:[O('rac','Raccordement',['taraudée BSP','à souder bout à bout','à emboîter (SW)','à brides PN16','à brides PN40','clamp','SMS','DIN 11851']),
+        O('vo','Voies',['2 voies','3 voies (L)','3 voies (T)']),O('pas','Passage',['intégral','réduit']),
+        O('man','Manœuvre',['levier','pneumatique double effet','pneumatique simple effet','électrique'])]});
+add({cat:'robi',grp:'Vannes',title:'Clapets anti-retour',norm:'EN 12334',unit:'pièces',matLabel:'Corps',mats:M_CORPS,sizes:dnr(15,600),
+  pieces:['Clapet à battant','Clapet à disque (wafer)','Clapet à ressort','Clapet à bille'],opts:[O('rac','Raccordement',['à brides PN16','à brides PN10','wafer (entre brides)','taraudé BSP','à souder'])]});
+add({cat:'robi',grp:'Vannes',title:'Vannes diverses',norm:'EN 1074 / DIN 3356',unit:'pièces',matLabel:'Corps',mats:M_CORPS,sizes:dnr(15,400),
+  pieces:['Robinet-vanne (vanne à opercule)','Vanne à soupape (globe valve)','Vanne à membrane','Vanne à guillotine','Vanne à pince','Vanne de régulation'],
+  opts:[O('rac','Raccordement',['à brides PN16','à brides PN10','à brides PN25','taraudée BSP','à souder','clamp','DIN 11851']),O('man','Manœuvre',['volant','pneumatique','électrique'])]});
+add({cat:'robi',grp:'Filtration et sécurité',title:'Filtres',norm:'EN 13445 / DIN 3386',unit:'pièces',matLabel:'Corps',mats:M_CORPS,sizes:dnr(15,400),
+  pieces:['Filtre en Y','Filtre à panier','Filtre simplex à tamis','Filtre à cartouche'],
+  opts:[O('rac','Raccordement',['à brides PN16','taraudé BSP','à souder','clamp']),O('ma','Maille',['0,25 mm','0,5 mm','1 mm','2 mm','à préciser'],'1 mm',{lab:'maille '})]});
+add({cat:'robi',grp:'Filtration et sécurité',title:'Purgeurs, soupapes et détendeurs',norm:'EN 26554 / EN ISO 4126',unit:'pièces',sizes:dnr(15,100),
+  pieces:['Purgeur à flotteur','Purgeur thermodynamique','Purgeur à bilame','Purgeur à seau renversé','Soupape de sécurité (tarage à préciser)','Détendeur (réducteur de pression)'],
+  mats:['inox 316 (CF8M)','acier (WCB)','fonte EN-GJS-400 (GS)','laiton'],matLabel:'Corps',opts:[O('rac','Raccordement',['taraudé BSP','à brides PN16','à souder','clamp'])]});
+add({cat:'robi',grp:'Instrumentation',title:'Instrumentation',norm:'EN 837 / EN 13190',unit:'pièces',
+  pieces:[{n:'Manomètre Ø63 (bain de glycérine)',sizes:null},{n:'Manomètre Ø100 (bain de glycérine)',sizes:null},{n:'Thermomètre bimétallique',sizes:null},{n:'Doigt de gant',sizes:null},{n:'Pressostat',sizes:null},{n:'Thermostat',sizes:null}],
+  opts:[O('rac','Raccordement',['G 1/4" (BSP)','G 1/2" (BSP)','NPT 1/4"','NPT 1/2"','clamp','à préciser'],'G 1/2" (BSP)')]});
+
+/* RACCORDS FILETÉS ET EMBOÎTEMENT */
+const FP = ['Coude 90° FF','Coude 90° MF','Coude 45° FF','Té égal','Té réduit*','Croix','Manchon','Manchon réduit*','Mamelon égal','Mamelon réduit*','Réduction MF*','Bouchon mâle','Bouchon femelle','Contre-écrou','Union à portée plate','Union à portée conique'];
+add({cat:'fil',grp:'Filetés',title:'Raccords filetés fonte malléable',norm:'EN 10242',unit:'pièces',sizes:FIL,pieces:FP,
+  opts:[O('fin','Finition',['noir','galvanisé']),O('fi','Filetage',['gaz Rp / R (EN 10226)','NPT','G (ISO 228)'])]});
+add({cat:'fil',grp:'Filetés',title:'Raccords filetés inox',norm:'ISO 4144 / ASME B16.11',unit:'pièces',mats:M_I2,sizes:FIL,pieces:FP.concat(['Mamelon double hexagonal','Nipple tube']),
+  opts:[O('cl','Classe',['fonte inox cl. 150','forgé 3000 lb (ASME B16.11)','forgé 6000 lb (ASME B16.11)']),O('fi','Filetage',['gaz Rp / R (EN 10226)','NPT','G (ISO 228)'])]});
+add({cat:'fil',grp:'Emboîtement',title:'Raccords à emboîtement forgés (SW)',norm:'ASME B16.11',unit:'pièces',mats:['acier A105','inox F316L','inox F304L'],sizes:NPSF.slice(0,9),
+  pieces:['Coude 90° SW','Coude 45° SW','Té SW','Manchon SW','Demi-manchon SW','Bouchon SW','Union SW'],opts:[O('cl','Classe',['3000 lb','6000 lb'])]});
+
+/* PIQUAGES ET ACCESSOIRES */
+add({cat:'div',grp:'Piquages',title:'Piquages forgés',norm:'MSS SP-97',unit:'pièces',mats:['acier A105','inox F316L','inox F304L'],sizes:isoR(15,600).map(s=>({t:`DN${s.dn}`,d:`DN${s.dn}`})),
+  pieces:[{n:'Weldolet (à souder bout à bout)',two:true,sep:' / '},{n:'Sockolet (à emboîtement)',two:true,sep:' / '},{n:'Thredolet (fileté)',two:true,sep:' / '},{n:'Nipolet',two:true,sep:' / '},{n:'Latrolet (45°)',two:true,sep:' / '},{n:'Elbolet (sur coude)',two:true,sep:' / '}],
+  opts:[O('cl','Série',['Sch STD','Sch XS','3000 lb','6000 lb'])],sepNote:'Dimension : collecteur / piquage'});
+add({cat:'div',grp:'Compensation',title:'Compensateurs, flexibles et manchettes',norm:'EN 14917',unit:'pièces',sizes:dnr(15,400),
+  pieces:['Compensateur de dilatation axial à soufflet inox, à brides','Compensateur de dilatation axial à soufflet inox, à souder','Compensateur à joint universel','Manchette anti-vibratoire EPDM à brides','Flexible inox annelé tressé (longueur à préciser)'],
+  opts:[O('pn','Pression',['PN6','PN10','PN16','PN25'],'PN16')]});
+
+/* TÔLES, PLATS, PROFILÉS */
+add({cat:'plat',grp:'Tôles',title:'Tôles',norm:'EN 10088-2 / EN 10025',unit:'feuilles',
+  pieces:[{n:'Tôle inox',mats:M_I,opts:[O('fin','Finition',['2B (laminée à froid)','1D (laminée à chaud, décapée)','4 (brossée grain 320)','BA (brillante)','2B pelliculée'],'2B (laminée à froid)'),O('ep','Épaisseur (mm)',['1','1,5','2','2,5','3','4','5','6','8','10','12','15','20'],'2',{lab:'ép. ',suf:' mm'}),O('fo','Format (mm)',['1000 × 2000','1250 × 2500','1500 × 3000','1500 × 6000','2000 × 6000','à découper'],'1000 × 2000')],sizes:null},
+          {n:'Tôle acier',mats:['acier S235JR','acier S355J2'],opts:[O('ep','Épaisseur (mm)',['2','3','4','5','6','8','10','12','15','20'],'3',{lab:'ép. ',suf:' mm'}),O('fo','Format (mm)',['1000 × 2000','1250 × 2500','1500 × 3000','2000 × 6000'],'1000 × 2000')],sizes:null}]});
+const AC=['acier S235JR','acier S355J2'];
+add({cat:'plat',grp:'Profilés',title:'Plats et profilés',norm:'EN 10056 / EN 10219 / EN 10365',unit:'barres de 6 m',
+  pieces:[
+   {n:'Plat',mats:M_I.concat(AC),sizes:lst(['20 × 3','25 × 3','30 × 3','30 × 5','40 × 4','40 × 5','50 × 5','60 × 6','80 × 8','100 × 10'])},
+   {n:'Cornière à ailes égales',mats:M_I.concat(AC),sizes:lst(['20 × 20 × 3','25 × 25 × 3','30 × 30 × 3','40 × 40 × 4','50 × 50 × 5','60 × 60 × 6','70 × 70 × 7','80 × 80 × 8','100 × 100 × 10'])},
+   {n:'Rond plein (Ø)',mats:M_I.concat(AC),sizes:lst(['6','8','10','12','16','20','25','30','40','50','60','80','100'],' mm')},
+   {n:'Tube carré',mats:M_I.concat(AC),sizes:lst(['20 × 20 × 2','25 × 25 × 2','30 × 30 × 2','40 × 40 × 2','40 × 40 × 3','50 × 50 × 3','60 × 60 × 3','80 × 80 × 4','100 × 100 × 4'])},
+   {n:'Tube rectangulaire',mats:M_I.concat(AC),sizes:lst(['40 × 20 × 2','50 × 30 × 2','60 × 40 × 3','80 × 40 × 3','100 × 50 × 3','120 × 60 × 4','150 × 100 × 4'])},
+   {n:'IPE',mats:AC,sizes:lst(['IPE 80','IPE 100','IPE 120','IPE 140','IPE 160','IPE 180','IPE 200','IPE 220','IPE 240','IPE 270','IPE 300'])},
+   {n:'HEA',mats:AC,sizes:lst(['HEA 100','HEA 120','HEA 140','HEA 160','HEA 180','HEA 200','HEA 220','HEA 240','HEA 260','HEA 280','HEA 300'])},
+   {n:'UPN',mats:AC,sizes:lst(['UPN 80','UPN 100','UPN 120','UPN 140','UPN 160','UPN 180','UPN 200','UPN 220','UPN 240','UPN 260','UPN 280','UPN 300'])}]});
+
+/* SUPPORTAGE ET VISSERIE */
+const QUAL=O('q','Qualité',['inox A2-70','inox A4-80','acier 8.8 zingué','acier 8.8 galvanisé à chaud','acier 8.8 brut','acier 10.9'],'inox A2-70');
+add({cat:'supp',grp:'Visserie',title:'Visserie et boulonnerie',norm:'EN ISO',unit:'pièces',sizes:Mx(),opts:[QUAL],
+  pieces:[{n:'Vis à tête hexagonale – EN ISO 4017 (filetage total)',len:'Longueur (mm)'},{n:'Vis à tête hexagonale – EN ISO 4014 (filetage partiel)',len:'Longueur (mm)'},{n:'Vis CHC – EN ISO 4762',len:'Longueur (mm)'},'Écrou hexagonal – EN ISO 4032','Écrou frein à anneau nylon – EN ISO 10511','Rondelle plate – EN ISO 7089','Rondelle large – EN ISO 7093',{n:'Tige filetée – DIN 976-1',len:'Longueur (mm)'}]});
+add({cat:'supp',grp:'Supportage',title:'Supportage de tuyauterie',norm:'',unit:'pièces',
+  pieces:[{n:'Collier de serrage double à écrou (type Rapid)',sizes:dnr(15,300)},{n:'Collier simple à vis',sizes:dnr(15,300)},{n:'Collier isophonique caoutchouc (type Isoclip)',sizes:dnr(15,300)},{n:'Patin / appui glissant',sizes:dnr(15,300)},{n:'Berceau de tuyauterie',sizes:dnr(50,600)},{n:'Rail de montage 41 × 41',sizes:null},{n:'Console murale / patte de fixation',sizes:null}],
+  opts:[O('m','Matière',['acier galvanisé','inox 304L (1.4307)','inox 316L (1.4404)','acier brut à peindre'])]});
+
+/* CONSOMMABLES SOUDAGE */
+const D=(id,vals,def)=>[O(id,'Diamètre (mm)',vals,def||vals[0],{lab:'Ø',suf:' mm'})];
+const C=(n,vals,unit)=>({n,sizes:null,opts:vals?D('dia',vals):[],unit:unit||'boîtes'});
+add({cat:'sou',grp:'Soudage',title:'Consommables de soudage',norm:'EN ISO 14343 / EN 1600',unit:'boîtes',
+  pieces:[C('Baguettes TIG ER308L (inox 304L)',['1,6','2,0','2,4','3,2'],'kg'),C('Baguettes TIG ER316L (inox 316L)',['1,6','2,0','2,4','3,2'],'kg'),C('Fil MIG ER308LSi',['0,8','1,0','1,2'],'bobines'),C('Fil MIG ER316LSi',['0,8','1,0','1,2'],'bobines'),C('Électrodes enrobées E 308L-16',['2,0','2,5','3,2','4,0']),C('Électrodes enrobées E 316L-16',['2,0','2,5','3,2','4,0']),C('Électrodes tungstène WL20 (bleu)',['1,6','2,4','3,2'],'boîtes'),C('Électrodes tungstène WC20 (gris)',['1,6','2,4','3,2'],'boîtes'),C('Argon (bouteille)',null,'bouteilles'),C('Gel décapant inox',null,'flacons'),C('Gel de passivation inox',null,'flacons'),C('Disque à tronçonner inox Ø125 × 1',null,'boîtes'),C('Disque à tronçonner inox Ø230 × 1,9',null,'boîtes'),C('Disque à lamelles inox Ø125',null,'pièces'),C('Brosse inox à main',null,'pièces')]});
+
+/* ---------- État ---------- */
+const UNITS=['pièces','m','barres de 6 m','kg','jeu','lot','boîtes','bobines','bouteilles','flacons','feuilles','rouleaux'];
+let S={v:1,demandes:[],activeId:null,custom:[],cert:true};
+let cur={fam:FAM[0].id,piece:0,mat:null,opts:{},s1:null,qty:{},unit:null,note:'',len:''};
+let query='';
+const $=id=>document.getElementById(id);
+const fam=id=>FAM.find(x=>x.id===id);
+const act=()=>S.demandes.find(d=>d.id===S.activeId)||null;
+
+function exampleState(){
+  const d={id:uid(),objet:'Exemple – chantier atelier (à vider)',four:'',ex:true,lines:[
+    {id:uid(),cat:'tube',famId:'f0',famTitle:'Tube inox – ISO 1127',norm:'EN 10217-7 soudé / EN 10216-5 sans soudure',name:'Tube inox',dim:'Ø60,3 × 2 mm (DN50)',spec:'inox 304L (1.4307), soudé',ref:'',qty:12,unit:'m',note:''},
+    {id:uid(),cat:'bw',famId:'f8',famTitle:'Raccords inox à souder bout à bout',norm:'EN 10253-4 / ASME B16.9',name:'Coude 90° grand rayon (R = 1,5 DN)',dim:'DN50 (Ø60,3)',spec:'inox 304L (1.4307), Sch 10S, soudé (type B)',ref:'',qty:8,unit:'pièces',note:''},
+    {id:uid(),cat:'alim',famId:'f10',famTitle:'Raccords SMS',norm:'SMS 1145 / SMS 3008',name:'Raccord SMS complet (femelle + mâle + écrou + joint)',dim:'SMS 38 (Ø38 × 1,2)',spec:'inox 304L (1.4307), joint EPDM',ref:'',qty:6,unit:'pièces',note:''}
+  ]};
+  return {v:1,demandes:[d],activeId:d.id,custom:[],cert:true};
+}
+
+/* ---------- Stockage ---------- */
+let db=null,doc=null,saveT=null,loaded=false;
+const LS='dpt-v1';
+function lsGet(){try{return JSON.parse(localStorage.getItem(LS)||'null')}catch(e){return null}}
+function lsSet(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
+function setSync(t){$('sync').textContent=t}
+function save(){
+  lsSet(); setSync('Modifié…'); clearTimeout(saveT);
+  saveT=setTimeout(async()=>{
+    if(!doc){ setSync('Enregistré sur cet appareil'); return; }
+    try{ await doc.set({json:JSON.stringify(S),at:Date.now()}); setSync('Enregistré'); }
+    catch(e){ setSync('Enregistré sur cet appareil'); }
+  },600);
+}
+async function initStore(){
+  try{
+    if(!window.claude||!claude.use) return;
+    const user=await claude.use('user'); const id=user&&await user.id();
+    db=await claude.use('db');
+    if(!db||!id) return;
+    doc=db.collection('data/users/'+id).doc('state');
+    const snap=await doc.get();
+    if(snap.exists){
+      const j=JSON.parse(snap.data().json||'null');
+      if(j&&j.demandes){ S=j; if(!S.custom)S.custom=[]; renderAll(); }
+    } else { await doc.set({json:JSON.stringify(S),at:Date.now()}); }
+    setSync('Enregistré');
+  }catch(e){ doc=null; setSync('Enregistré sur cet appareil'); }
+}
+
+/* ---------- Construction d'une ligne ---------- */
+function pieceOf(fm){ return fm.pieces[Math.min(cur.piece,fm.pieces.length-1)]; }
+function sizesOf(fm,pc){ return ('sizes' in pc)?pc.sizes:(fm.sizes||null); }
+function optsOf(fm,pc){ return (fm.opts||[]).concat(pc.opts||[]); }
+function matsOf(fm,pc){ return pc.mats||fm.mats||null; }
+function optVal(o){ return cur.opts[o.id]!=null?cur.opts[o.id]:o.def; }
+function rowsOf(fm){
+  if(fm.id==='custom') return S.custom.map(c=>({t:c.label,d:'',custom:c.id,cat:c.cat}));
+  if(fm.items) return fm.items;
+  const pc=pieceOf(fm), sz=sizesOf(fm,pc);
+  if(!sz) return [{t:'Quantité',d:'',none:true}];
+  if(pc.two){ const i=Math.min(cur.s1==null?Math.min(5,sz.length-1):cur.s1,sz.length-1); return sz.slice(0,i); }
+  return sz;
+}
+function mkLine(fm,r,q){
+  const pc=pieceOf(fm); let dim='', spec=[];
+  const op=optsOf(fm,pc), ov={}; op.forEach(o=>ov[o.id]=optVal(o));
+  if(r.none) dim=''; else if(pc.two){
+    const sz=sizesOf(fm,pc); const i=Math.min(cur.s1==null?Math.min(5,sz.length-1):cur.s1,sz.length-1);
+    dim=sz[i].d+(pc.sep||' × ')+r.d;
+  } else dim=fm.dim?fm.dim(r,null,ov):r.d;
+  const mt=fm.fixedMat||(matsOf(fm,pc)?(cur.mat&&matsOf(fm,pc).includes(cur.mat)?cur.mat:matsOf(fm,pc)[0]):null);
+  if(mt) spec.push(mt);
+  op.forEach(o=>{ if(o.inDim) return; spec.push((o.lab||'')+ov[o.id]+(o.suf||'')); });
+  if(pc.len&&cur.len) spec.push('L = '+cur.len+' mm');
+  return {id:uid(),cat:fm.cat,famId:fm.id,famTitle:fm.title,norm:fm.norm||'',name:pc.n,dim,spec:spec.join(', '),ref:r.ref||'',qty:q,unit:cur.unit||pc.unit||fm.unit||'pièces',note:cur.note||''};
+}
+function lineKey(l){return [l.famId,l.name,l.dim,l.spec,l.ref,l.unit,l.note].join('|')}
+function addLines(lines){
+  let d=act(); if(!d||d.ex){ d=newDemande(); }
+  lines.forEach(l=>{ const m=d.lines.find(x=>lineKey(x)===lineKey(l)); if(m) m.qty=Math.round((m.qty+l.qty)*1000)/1000; else d.lines.push(l); });
+  save(); renderDem(); renderBadge();
+}
+function newDemande(){
+  const d={id:uid(),objet:'',four:'',lines:[]}; S.demandes.push(d); S.activeId=d.id; return d;
+}
+
+/* ---------- Texte du mail ---------- */
+function qtyStr(q){return String(q).replace('.',',')}
+function lineText(l){
+  return l.name+(l.dim?' '+l.dim:'')+(l.spec?' – '+l.spec:'')+(l.ref?' – réf. '+l.ref:'')+(l.note?' ('+l.note+')':'');
+}
+function grouped(d){
+  const out=[];
+  CATS.forEach(c=>{
+    const ls=d.lines.filter(l=>l.cat===c.id); if(!ls.length) return;
+    const fams=[]; ls.forEach(l=>{ let g=fams.find(x=>x.key===l.famId); if(!g){g={key:l.famId,title:l.famTitle,norm:l.norm,lines:[]};fams.push(g);} g.lines.push(l); });
+    out.push({cat:c,fams});
+  });
+  return out;
+}
+function mailText(d){
+  const g=grouped(d); const obj=(d.objet||'').trim()||'matériel tuyauterie';
+  let t='Objet : Demande de devis - '+obj+'\n\nBonjour,\n\nPourriez-vous nous communiquer votre meilleur prix et votre délai pour le matériel suivant :\n';
+  g.forEach(c=>{
+    t+='\n'+c.cat.t.toUpperCase()+'\n';
+    c.fams.forEach(fm=>{
+      t+='\n'+fm.title+(fm.norm&&fm.norm!=='serti inox – réf. fournisseur'?' ('+fm.norm+')':'')+'\n';
+      fm.lines.forEach(l=>{ t+='- '+qtyStr(l.qty)+' '+l.unit+' : '+lineText(l)+'\n'; });
+    });
+  });
+  if(S.cert) t+='\nCertificats matière EN 10204 type 3.1 demandés pour les tubes, raccords et brides.\n';
+  t+='\nMerci d\'avance.\nCordialement,';
+  return t;
+}
+function csvText(d){
+  const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  const rows=[['Catégorie','Famille','Norme','Désignation','Réf. fournisseur','Quantité','Unité','Remarque']];
+  grouped(d).forEach(c=>c.fams.forEach(fm=>fm.lines.forEach(l=>rows.push([c.cat.t,fm.title,fm.norm,(l.name+(l.dim?' '+l.dim:'')+(l.spec?' – '+l.spec:'')),l.ref,qtyStr(l.qty),l.unit,l.note]))));
+  return '﻿'+rows.map(r=>r.map(q).join(';')).join('\r\n');
+}
+
+/* ---------- Rendu : navigation ---------- */
+function famMatches(fm,q){
+  if(!q) return true;
+  const hay=(fm.title+' '+fm.norm+' '+fm.grp+' '+CATN[fm.cat]+' '+fm.pieces.map(p=>p.n).join(' ')).toLowerCase();
+  return q.toLowerCase().split(/\s+/).every(w=>hay.includes(w));
+}
+function renderNav(){
+  const q=query.trim(); let h='';
+  CATS.forEach(c=>{
+    const fs=FAM.filter(x=>x.cat===c.id&&famMatches(x,q)); if(!fs.length) return;
+    const open=q||fs.some(x=>x.id===cur.fam)?' open':'';
+    h+='<details'+open+'><summary>'+esc(c.t)+'</summary><div class="body">';
+    let g=null;
+    fs.forEach(x=>{ if(x.grp!==g){g=x.grp;h+='<div class="grp">'+esc(g)+'</div>';}
+      h+='<button class="fam" data-fam="'+x.id+'"'+(x.id===cur.fam?' aria-current="true"':'')+'>'+esc(x.title)+(x.norm?'<small>'+esc(x.norm)+'</small>':'')+'</button>'; });
+    h+='</div></details>';
+  });
+  h+='<details'+((cur.fam==='custom')?' open':'')+'><summary>Mes articles</summary><div class="body"><button class="fam" data-fam="custom"'+(cur.fam==='custom'?' aria-current="true"':'')+'>Articles libres mémorisés<small>'+S.custom.length+' article(s)</small></button></div></details>';
+  $('navlist').innerHTML=h||'<div class="empty">Aucune famille ne correspond.</div>';
+}
+
+/* ---------- Rendu : saisie ---------- */
+function selHtml(id,label,vals,val){
+  return '<label class="f">'+esc(label)+'<select data-sel="'+id+'">'+vals.map(v=>'<option'+(v===val?' selected':'')+'>'+esc(v)+'</option>').join('')+'</select></label>';
+}
+function renderBuild(){
+  const el=$('build');
+  if(cur.fam==='custom'){ renderCustom(); return; }
+  const fm=fam(cur.fam), pc=pieceOf(fm), mats=matsOf(fm,pc), ops=optsOf(fm,pc), sz=sizesOf(fm,pc);
+  if(!cur.unit) cur.unit=pc.unit||fm.unit;
+  let h='<div class="fh"><div class="row"><span class="tag">'+esc(CATN[fm.cat])+'</span>'+(fm.norm?'<span class="tag">'+esc(fm.norm)+'</span>':'')+'</div><h3>'+esc(fm.title)+'</h3></div>';
+  h+='<div class="sel-grid">';
+  if(fm.pieces.length>1) h+=selHtml('piece','Pièce',fm.pieces.map(p=>p.n),pc.n);
+  if(fm.fixedMat) h+='<label class="f">Matière<input type="text" value="'+esc(fm.fixedMat)+'" readonly></label>';
+  else if(mats) h+=selHtml('mat',fm.matLabel||'Matière',mats,(cur.mat&&mats.includes(cur.mat))?cur.mat:mats[0]);
+  ops.forEach(o=>{ h+=selHtml('o:'+o.id,o.label,o.vals,optVal(o)); });
+  if(pc.two&&sz){ const i=cur.s1==null?Math.min(5,sz.length-1):cur.s1; h+='<label class="f">'+(pc.sep?'Collecteur (gros)':'Grosse dimension')+'<select data-sel="s1">'+sz.map((s,k)=>'<option value="'+k+'"'+(k===i?' selected':'')+'>'+esc(s.t)+'</option>').join('')+'</select></label>'; }
+  if(pc.len) h+='<label class="f">'+esc(pc.len)+'<input type="number" min="0" data-sel="len" value="'+esc(cur.len)+'" placeholder="ex. 50"></label>';
+  h+=selHtml('unit','Unité de la quantité',UNITS,cur.unit);
+  h+='<label class="f">Remarque (appliquée aux lignes)<input type="text" data-sel="note" value="'+esc(cur.note)+'" placeholder="ex. livraison sous 15 jours"></label>';
+  h+='</div>';
+  const rows=rowsOf(fm);
+  if(!rows.length){ h+='<div class="empty">Choisissez une grosse dimension plus grande.</div>'; el.innerHTML=h; renderAdd(); return; }
+  const head=(pc.two?(pc.sep?'Piquage':'Petite dimension'):(fm.items?'Désignation':(rows[0].none?'':'Dimension')));
+  h+='<div class="tw"><table class="grid"><thead><tr><th>'+esc(head)+'</th>'+(fm.items?'<th>Réf.</th>':'')+'<th style="text-align:right">Quantité</th></tr></thead><tbody>';
+  rows.forEach((r,i)=>{
+    const key=r.t, v=cur.qty[key]||'';
+    h+='<tr'+(v?' class="has"':'')+'><td>'+esc(r.none?'Quantité à commander':r.t)+'</td>'+(fm.items?'<td class="r">'+esc(r.ref)+'</td>':'')+'<td style="text-align:right"><input type="number" inputmode="decimal" min="0" step="any" data-q="'+i+'" value="'+esc(v)+'" aria-label="Quantité '+esc(r.t)+'"></td></tr>';
+  });
+  h+='</tbody></table></div>';
+  if(fm.sepNote||pc.sep) h+='<p class="hint">Dimension : collecteur / piquage.</p>';
+  if(fm.id==='f0') h+='<p class="hint">Nuance par défaut : 304L. Passez en 316L dans la liste Matière si besoin.</p>';
+  el.innerHTML=h; renderAdd();
+}
+function qtyOf(i){ const r=rowsOf(fam(cur.fam))[i]; const v=parseFloat(String(cur.qty[r.t]||'').replace(',','.')); return v>0?v:0; }
+function countRows(){ let n=0; if(cur.fam==='custom'){ S.custom.forEach(c=>{const v=parseFloat(String(cur.qty[c.label]||'').replace(',','.')); if(v>0)n++;}); return n;} rowsOf(fam(cur.fam)).forEach((r,i)=>{ if(qtyOf(i))n++; }); return n; }
+function renderAdd(){
+  const n=countRows();
+  $('addbar').innerHTML='<span class="hint">'+(n?n+' ligne(s) prête(s)':'Saisissez des quantités dans la grille.')+'</span><button class="btn pri" id="addbtn"'+(n?'':' disabled')+'>Ajouter à la demande'+(n?' ('+n+')':'')+'</button>';
+}
+function renderCustom(){
+  let h='<div class="fh"><div class="row"><span class="tag">Mes articles</span></div><h3>Articles libres</h3></div>';
+  h+='<div class="free"><label class="f">Catégorie<select id="c-cat">'+CATS.map(c=>'<option value="'+c.id+'">'+esc(c.t)+'</option>').join('')+'</select></label>';
+  h+='<label class="f">Désignation complète<input type="text" id="c-lab" placeholder="ex. Vanne papillon DN80 wafer pelle inox 316, joint EPDM"></label>';
+  h+='<div class="sel-grid" style="margin:0"><label class="f">Quantité<input type="number" id="c-qty" min="0" step="any" value="1"></label>'+selHtml('c-unit','Unité',UNITS,'pièces').replace('data-sel="c-unit"','id="c-unit"')+'</div>';
+  h+='<label class="chk"><input type="checkbox" id="c-mem" checked> Mémoriser dans Mes articles</label><div class="row"><button class="btn pri" id="c-add">Ajouter à la demande</button></div></div>';
+  if(S.custom.length){
+    h+='<h3 style="font:700 18px var(--f-head);margin:16px 0 6px;text-transform:uppercase">Articles mémorisés</h3><div class="tw"><table class="grid"><thead><tr><th>Désignation</th><th style="text-align:right">Quantité</th><th></th></tr></thead><tbody>';
+    S.custom.forEach((c,i)=>{ const v=cur.qty[c.label]||''; h+='<tr'+(v?' class="has"':'')+'><td>'+esc(c.label)+'<div class="hint">'+esc(CATN[c.cat])+'</div></td><td style="text-align:right"><input type="number" min="0" step="any" data-q="'+i+'" value="'+esc(v)+'" aria-label="Quantité '+esc(c.label)+'"></td><td><button class="x" data-delc="'+c.id+'" aria-label="Supprimer l\'article">×</button></td></tr>'; });
+    h+='</tbody></table></div>';
+  } else h+='<p class="hint">Les articles mémorisés apparaîtront ici avec une grille de quantités.</p>';
+  $('build').innerHTML=h; renderAdd();
+}
+
+/* ---------- Rendu : demande ---------- */
+function renderBadge(){ const d=act(); const n=d?d.lines.length:0; $('badge').textContent=n; }
+function renderDem(){
+  const d=act(), el=$('dem'); renderBadge();
+  let h='<div class="dsel"><select id="dsel" aria-label="Demande active">'+S.demandes.map(x=>'<option value="'+x.id+'"'+(x.id===S.activeId?' selected':'')+'>'+esc((x.objet||'Sans objet')+(x.four?' · '+x.four:''))+' ('+x.lines.length+')</option>').join('')+'</select><button class="btn" id="dnew">Nouvelle</button></div>';
+  if(!d){ el.innerHTML=h+'<div class="empty">Aucune demande. Créez-en une pour commencer.</div>'; return; }
+  h+='<div class="dform"><label class="f">Objet (après « Demande de devis - »)<input type="text" id="dobj" value="'+esc(d.objet)+'" placeholder="ex. tuyauterie inox atelier Lunor"></label>';
+  h+='<label class="f">Fournisseur visé (repère interne, non écrit dans le mail)<input type="text" id="dfour" value="'+esc(d.four||'')+'" placeholder="ex. fournisseur tubes"></label></div>';
+  if(d.ex) h+='<div class="note">Exemple de démarrage. Ajoutez vos lignes, ou videz la demande.</div>';
+  if(!d.lines.length) h+='<div class="empty">Demande vide. Choisissez une famille dans le catalogue et saisissez des quantités.</div>';
+  grouped(d).forEach(c=>{
+    h+='<div class="cat-h">'+esc(c.cat.t)+'</div>';
+    c.fams.forEach(fm=>{
+      h+='<div class="fam-h">'+esc(fm.title)+'</div>';
+      fm.lines.forEach(l=>{
+        h+='<div class="ln"><div class="t">'+esc(l.name+(l.dim?' '+l.dim:''))+'<br><em>'+esc((l.spec||'')+(l.ref?(l.spec?' · ':'')+'réf. '+l.ref:'')+(l.note?' · '+l.note:''))+'</em></div>'
+          +'<input type="number" min="0" step="any" value="'+esc(l.qty)+'" data-lq="'+l.id+'" aria-label="Quantité">'
+          +'<select data-lu="'+l.id+'" aria-label="Unité">'+(UNITS.includes(l.unit)?UNITS:UNITS.concat([l.unit])).map(u=>'<option'+(u===l.unit?' selected':'')+'>'+esc(u)+'</option>').join('')+'</select>'
+          +'<button class="x" data-ld="'+l.id+'" aria-label="Supprimer la ligne">×</button></div>';
+      });
+    });
+  });
+  h+='<div class="cat-h">Mail de demande de prix</div>';
+  h+='<label class="chk" style="margin:8px 0"><input type="checkbox" id="cert"'+(S.cert?' checked':'')+'> Demander les certificats matière 3.1 (EN 10204)</label>';
+  h+='<textarea class="mail" id="mail" readonly aria-label="Texte du mail">'+esc(mailText(d))+'</textarea>';
+  h+='<div class="row" style="margin-top:8px"><button class="btn pri" id="bcopy">Copier le mail</button><button class="btn" id="bcsv">Exporter Excel (.csv)</button><button class="btn" id="bsplit" title="Une demande par catégorie">Séparer par catégorie</button><button class="btn" id="bclear">Vider</button><button class="btn" id="bdel">Supprimer la demande</button></div>';
+  h+='<p class="hint">Le mail n\'a pas de destinataire : ajoutez-le dans votre messagerie. Votre signature s\'ajoute automatiquement.</p>';
+  el.innerHTML=h;
+}
+function refreshMail(){ const d=act(),m=$('mail'); if(d&&m) m.value=mailText(d); }
+
+/* ---------- Actions ---------- */
+function toast(t){ const e=$('toast'); e.textContent=t; e.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>e.hidden=true,2200); }
+async function copy(text){
+  try{ await navigator.clipboard.writeText(text); toast('Mail copié'); return; }catch(e){}
+  const m=$('mail');
+  try{ m.removeAttribute('readonly'); m.focus(); m.select(); if(document.execCommand('copy')){ m.setAttribute('readonly',''); toast('Mail copié'); return; } }catch(e){}
+  toast('Texte sélectionné : faites Ctrl+C');
+}
+function renderAll(){ renderNav(); renderBuild(); renderDem(); }
+function resetCur(id){ cur={fam:id,piece:0,mat:null,opts:{},s1:null,qty:{},unit:null,note:'',len:''}; }
+
+document.addEventListener('click',async e=>{
+  const t=e.target.closest('button,summary'); if(!t) return;
+  if(t.dataset.fam){ resetCur(t.dataset.fam); renderNav(); renderBuild(); $('app').dataset.view='build'; syncTabs(); $('build').scrollTop=0; return; }
+  if(t.dataset.v){ $('app').dataset.view=t.dataset.v; syncTabs(); return; }
+  if(t.id==='addbtn'){
+    const lines=[];
+    if(cur.fam==='custom'){
+      S.custom.forEach(c=>{ const v=parseFloat(String(cur.qty[c.label]||'').replace(',','.')); if(v>0) lines.push({id:uid(),cat:c.cat,famId:'custom',famTitle:'Articles libres',norm:'',name:c.label,dim:'',spec:'',ref:'',qty:v,unit:c.unit||'pièces',note:''}); });
+    } else { const fm=fam(cur.fam); rowsOf(fm).forEach((r,i)=>{ const q=qtyOf(i); if(q) lines.push(mkLine(fm,r,q)); }); }
+    if(!lines.length) return;
+    addLines(lines); cur.qty={}; renderBuild(); toast(lines.length+' ligne(s) ajoutée(s)'); return;
+  }
+  if(t.id==='c-add'){
+    const lab=$('c-lab').value.trim(), q=parseFloat(String($('c-qty').value).replace(',','.')); if(!lab||!(q>0)){ toast('Saisissez une désignation et une quantité'); return; }
+    const cat=$('c-cat').value, unit=$('c-unit').value;
+    if($('c-mem').checked&&!S.custom.some(c=>c.label===lab&&c.cat===cat)) S.custom.push({id:uid(),cat,label:lab,unit});
+    addLines([{id:uid(),cat,famId:'custom',famTitle:'Articles libres',norm:'',name:lab,dim:'',spec:'',ref:'',qty:q,unit,note:''}]);
+    renderBuild(); toast('Ligne ajoutée'); return;
+  }
+  if(t.dataset.delc){ S.custom=S.custom.filter(c=>c.id!==t.dataset.delc); save(); renderBuild(); renderNav(); return; }
+  if(t.id==='dnew'){ newDemande(); save(); renderDem(); return; }
+  const d=act();
+  if(t.dataset.ld&&d){ d.lines=d.lines.filter(l=>l.id!==t.dataset.ld); save(); renderDem(); return; }
+  if(t.id==='bcopy'&&d){ copy(mailText(d)); return; }
+  if(t.id==='bclear'&&d){ d.lines=[]; delete d.ex; save(); renderDem(); return; }
+  if(t.id==='bdel'&&d){ S.demandes=S.demandes.filter(x=>x!==d); S.activeId=S.demandes.length?S.demandes[0].id:null; save(); renderDem(); return; }
+  if(t.id==='bsplit'&&d){
+    const g=grouped(d); if(g.length<2){ toast('Une seule catégorie : rien à séparer'); return; }
+    g.forEach(c=>{ S.demandes.push({id:uid(),objet:(d.objet?d.objet+' – ':'')+c.cat.t,four:d.four||'',lines:c.fams.reduce((a,x)=>a.concat(x.lines.map(l=>Object.assign({},l,{id:uid()}))),[])}); });
+    S.activeId=S.demandes[S.demandes.length-g.length].id; save(); renderDem(); toast(g.length+' demandes créées (l\'originale est conservée)'); return;
+  }
+  if(t.id==='bcsv'&&d){
+    const name=((d.objet||'demande_de_prix').replace(/[^\w\-]+/g,'_'))+'.csv';
+    const blob=new Blob([csvText(d)],{type:'text/csv;charset=utf-8'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+    return;
+  }
+});
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.id==='q'){ query=t.value; renderNav(); return; }
+  if(t.dataset.q!=null){ const fm=cur.fam==='custom'?null:fam(cur.fam); const key=fm?rowsOf(fm)[+t.dataset.q].t:S.custom[+t.dataset.q].label; cur.qty[key]=t.value; t.closest('tr').classList.toggle('has',parseFloat(String(t.value).replace(',','.'))>0); renderAdd(); return; }
+  if(t.dataset.sel==='len'){ cur.len=t.value; return; }
+  if(t.dataset.sel==='note'){ cur.note=t.value; return; }
+  const d=act();
+  if(t.id==='dobj'&&d){ d.objet=t.value; refreshMail(); const o=$('dsel').selectedOptions[0]; if(o) o.textContent=(d.objet||'Sans objet')+(d.four?' · '+d.four:'')+' ('+d.lines.length+')'; save(); return; }
+  if(t.id==='dfour'&&d){ d.four=t.value; save(); return; }
+  if(t.dataset.lq&&d){ const l=d.lines.find(x=>x.id===t.dataset.lq); const v=parseFloat(String(t.value).replace(',','.')); if(l&&v>=0){ l.qty=v; refreshMail(); save(); } return; }
+});
+document.addEventListener('change',e=>{
+  const t=e.target, d=act();
+  if(t.id==='dsel'){ S.activeId=t.value; save(); renderDem(); return; }
+  if(t.id==='cert'){ S.cert=t.checked; refreshMail(); save(); return; }
+  if(t.dataset.lu&&d){ const l=d.lines.find(x=>x.id===t.dataset.lu); if(l){ l.unit=t.value; refreshMail(); save(); } return; }
+  const s=t.dataset.sel; if(!s) return;
+  if(s==='piece'){ const fm=fam(cur.fam); cur.piece=fm.pieces.findIndex(p=>p.n===t.value); cur.s1=null; cur.opts={}; cur.unit=null; renderBuild(); return; }
+  if(s==='mat'){ cur.mat=t.value; return; }
+  if(s==='unit'){ cur.unit=t.value; return; }
+  if(s==='s1'){ cur.s1=+t.value; renderBuild(); return; }
+  if(s.startsWith('o:')){ cur.opts[s.slice(2)]=t.value; return; }
+});
+function syncTabs(){ const v=$('app').dataset.view; document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.v===v?'true':'false')); }
+
+/* ---------- Démarrage ---------- */
+const saved=lsGet();
+if(saved&&saved.demandes){ S=saved; if(!S.custom) S.custom=[]; if(S.cert==null) S.cert=true; } else S=exampleState();
+if(!S.activeId&&S.demandes[0]) S.activeId=S.demandes[0].id;
+renderAll(); syncTabs(); setSync('Enregistré sur cet appareil');
+initStore();
+})();
+</script>
+
+</body></html>
