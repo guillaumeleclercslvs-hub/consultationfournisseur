@@ -172,17 +172,17 @@ const CATS = [
 const CATN = Object.fromEntries(CATS.map(c=>[c.id,c.t]));
 
 /* ---------- Dimensions ---------- */
-const mk = (dn,od,extra)=>Object.assign({t:`DN${dn} – Ø${f(od)}`, d:`DN${dn} (Ø${f(od)})`, dn, od}, extra||{});
+const mk = (dn,od,extra)=>Object.assign({t:`DN${dn} – Ø${f(od)}`, d:`DN${dn} (Ø${f(od)})`, s:`DN${dn}`, dn, od}, extra||{});
 const ISO = [[10,17.2],[15,21.3],[20,26.9],[25,33.7],[32,42.4],[40,48.3],[50,60.3],[65,76.1],[80,88.9],[100,114.3],[125,139.7],[150,168.3],[200,219.1],[250,273],[300,323.9],[350,355.6],[400,406.4],[450,457],[500,508],[600,610]].map(a=>mk(a[0],a[1]));
 const isoR = (a,b)=>ISO.filter(s=>s.dn>=a&&s.dn<=b);
-const ASME = [[15,21.3,'1/2"'],[20,26.7,'3/4"'],[25,33.4,'1"'],[32,42.2,'1" 1/4'],[40,48.3,'1" 1/2'],[50,60.3,'2"'],[65,73,'2" 1/2'],[80,88.9,'3"'],[100,114.3,'4"'],[125,141.3,'5"'],[150,168.3,'6"'],[200,219.1,'8"'],[250,273.1,'10"'],[300,323.9,'12"'],[350,355.6,'14"'],[400,406.4,'16"']].map(a=>({t:`DN${a[0]} (${a[2]}) – Ø${f(a[1])}`, d:`DN${a[0]} (${a[2]}, Ø${f(a[1])})`, dn:a[0], od:a[1]}));
+const ASME = [[15,21.3,'1/2"'],[20,26.7,'3/4"'],[25,33.4,'1"'],[32,42.2,'1" 1/4'],[40,48.3,'1" 1/2'],[50,60.3,'2"'],[65,73,'2" 1/2'],[80,88.9,'3"'],[100,114.3,'4"'],[125,141.3,'5"'],[150,168.3,'6"'],[200,219.1,'8"'],[250,273.1,'10"'],[300,323.9,'12"'],[350,355.6,'14"'],[400,406.4,'16"']].map(a=>({t:`DN${a[0]} (${a[2]}) – Ø${f(a[1])}`, d:`DN${a[0]} (${a[2]}, Ø${f(a[1])})`, s:`DN${a[0]}`, dn:a[0], od:a[1]}));
 const MET = [12,15,18,22,28,35,42,54,76.1,88.9,108,133,159,219.1].map(od=>({t:`Ø${f(od)}`, d:`Ø${f(od)}`, od}));
-const DIN = [[10,13,1.5],[15,19,1.5],[20,23,1.5],[25,29,1.5],[32,35,1.5],[40,41,1.5],[50,53,1.5],[65,70,2],[80,85,2],[100,104,2],[125,129,2],[150,154,2]].map(a=>({t:`DN${a[0]} – ${f(a[1])} × ${f(a[2])}`, d:`DN${a[0]} (${f(a[1])} × ${f(a[2])})`, dn:a[0]}));
-const SMS = [[25,1.2],[38,1.2],[51,1.2],[63.5,1.6],[76.1,1.6],[104,2]].map(a=>({t:`SMS ${f(a[0])} – Ø${f(a[0])} × ${f(a[1])}`, d:`SMS ${f(a[0])} (Ø${f(a[0])} × ${f(a[1])})`}));
-const INCH = [['1/2"',12.7],['3/4"',19.05],['1"',25.4],['1" 1/2',38.1],['2"',50.8],['2" 1/2',63.5],['3"',76.2],['4"',101.6],['6"',152.4]].map(a=>({t:`${a[0]} – Ø${f(a[1])}`, d:`${a[0]} (Ø${f(a[1])})`, od:a[1]}));
-const E255 = [[8,13.5,2.35],[10,17.2,2.35],[15,21.3,2.65],[20,26.9,2.65],[25,33.7,3.25],[32,42.4,3.25],[40,48.3,3.25],[50,60.3,3.65],[65,76.1,3.65],[80,88.9,4.05],[100,114.3,4.5],[125,139.7,4.85],[150,165.1,4.85]].map(a=>({t:`DN${a[0]} – ${f(a[1])} × ${f(a[2])}`, d:`DN${a[0]} (Ø${f(a[1])} × ${f(a[2])} mm)`}));
-const NPSF = [['1/2"',15],['3/4"',20],['1"',25],['1" 1/4',32],['1" 1/2',40],['2"',50],['2" 1/2',65],['3"',80],['4"',100],['5"',125],['6"',150],['8"',200],['10"',250],['12"',300],['14"',350],['16"',400],['18"',450],['20"',500],['24"',600]].map(a=>({t:`NPS ${a[0]} – DN${a[1]}`, d:`NPS ${a[0]} (DN${a[1]})`}));
-const FIL = [['1/8"',6],['1/4"',8],['3/8"',10],['1/2"',15],['3/4"',20],['1"',25],['1" 1/4',32],['1" 1/2',40],['2"',50],['2" 1/2',65],['3"',80],['4"',100]].map(a=>({t:`${a[0]} – DN${a[1]}`, d:`${a[0]} (DN${a[1]})`}));
+const DIN = [[10,13,1.5],[15,19,1.5],[20,23,1.5],[25,29,1.5],[32,35,1.5],[40,41,1.5],[50,53,1.5],[65,70,2],[80,85,2],[100,104,2],[125,129,2],[150,154,2]].map(a=>({t:`DN${a[0]} – ${f(a[1])} × ${f(a[2])}`, d:`DN${a[0]} (${f(a[1])} × ${f(a[2])})`, s:`DN${a[0]}`, dn:a[0]}));
+const SMS = [[25,1.2],[38,1.2],[51,1.2],[63.5,1.6],[76.1,1.6],[104,2]].map(a=>({t:`SMS ${f(a[0])} – Ø${f(a[0])} × ${f(a[1])}`, d:`SMS ${f(a[0])} (Ø${f(a[0])} × ${f(a[1])})`, s:`Ø${f(a[0])}`}));
+const INCH = [['1/2"',12.7],['3/4"',19.05],['1"',25.4],['1" 1/2',38.1],['2"',50.8],['2" 1/2',63.5],['3"',76.2],['4"',101.6],['6"',152.4]].map(a=>({t:`${a[0]} – Ø${f(a[1])}`, d:`${a[0]} (Ø${f(a[1])})`, s:a[0], od:a[1]}));
+const E255 = [[8,13.5,2.35],[10,17.2,2.35],[15,21.3,2.65],[20,26.9,2.65],[25,33.7,3.25],[32,42.4,3.25],[40,48.3,3.25],[50,60.3,3.65],[65,76.1,3.65],[80,88.9,4.05],[100,114.3,4.5],[125,139.7,4.85],[150,165.1,4.85]].map(a=>({t:`DN${a[0]} – ${f(a[1])} × ${f(a[2])}`, d:`DN${a[0]} (Ø${f(a[1])} × ${f(a[2])} mm)`, s:`DN${a[0]}`}));
+const NPSF = [['1/2"',15],['3/4"',20],['1"',25],['1" 1/4',32],['1" 1/2',40],['2"',50],['2" 1/2',65],['3"',80],['4"',100],['5"',125],['6"',150],['8"',200],['10"',250],['12"',300],['14"',350],['16"',400],['18"',450],['20"',500],['24"',600]].map(a=>({t:`NPS ${a[0]} – DN${a[1]}`, d:`NPS ${a[0]} (DN${a[1]})`, s:`DN${a[1]}`}));
+const FIL = [['1/8"',6],['1/4"',8],['3/8"',10],['1/2"',15],['3/4"',20],['1"',25],['1" 1/4',32],['1" 1/2',40],['2"',50],['2" 1/2',65],['3"',80],['4"',100]].map(a=>({t:`${a[0]} – DN${a[1]}`, d:`${a[0]} (DN${a[1]})`, s:a[0]}));
 const lst = (arr,suf)=>arr.map(x=>({t:x+(suf||''), d:x+(suf||'')}));
 const Mx = n => lst(['M6','M8','M10','M12','M14','M16','M20','M24','M30'].slice(0, n||9));
 
@@ -231,7 +231,8 @@ add({cat:'tube',grp:'Tubes acier',title:'Tube acier sans soudure – EN 10216-2'
   opts:[O('sch','Épaisseur',SCH_A,'Sch 40 (STD)')], dim:(s)=>`Ø${f(s.od)} (DN${s.dn})`});
 
 /* RACCORDS À SOUDER */
-const BW = ['Coude 90°','Coude 45°','Coude 180°','Té égal à souder','Té réduit à souder*','Réduction concentrique à souder*','Réduction excentrique à souder*','Fond bombé à souder (calotte)'];
+const THR_O = [O('fil','Filetage',['1/8"','1/4"','3/8"','1/2"','3/4"','1"','1" 1/4','1" 1/2','2"','2" 1/2','3"','4"'],'1/2"',{lab:'filetage '}),O('ft','Type de filetage',['gaz BSP','NPT'],'gaz BSP')];
+const BW = ['Coude 90°','Coude 45°','Coude 180°','Té égal à souder','Té réduit à souder*','Réduction concentrique à souder*','Réduction excentrique à souder*','Fond bombé à souder (calotte)',{n:'Embout fileté mâle à souder',opts:THR_O},{n:'Embout fileté femelle à souder',opts:THR_O}];
 add({cat:'bw',grp:'Inox',title:'Raccords inox à souder bout à bout',norm:'EN 10253-4 / ASME B16.9',pieces:BW,mats:M_I,sizes:isoR(15,400),unit:'pièces',
   opts:[O('ep','Épaisseur',SCH_I,'2 mm'), O('ex','Exécution',['soudé (type B)','sans soudure (type A)'])]});
 add({cat:'bw',grp:'Acier',title:'Raccords acier à souder bout à bout',norm:'EN 10253-2 / ASME B16.9',pieces:BW,mats:M_AT,sizes:isoR(15,500),unit:'pièces',
@@ -241,9 +242,9 @@ add({cat:'bw',grp:'Acier',title:'Raccords acier à souder bout à bout',norm:'EN
 const jp = (n,two)=>({n,two,opts:[JOINT]});
 const JOINTM = O('matj','Matière du joint',['EPDM','silicone','FKM (Viton)','PTFE','NBR (nitrile)'],'EPDM',{lab:'joint '});
 add({cat:'alim',grp:'SMS',title:'Raccords SMS',norm:'SMS 1145 / SMS 3008',unit:'pièces',mats:M_I2,sizes:SMS,
-  pieces:[jp('Raccord SMS complet (femelle + mâle + écrou + joint)'),'Mâle SMS à souder','Femelle SMS à souder','Écrou SMS',{n:'Joint SMS',opts:[JOINTM]},jp('Bouchon SMS complet (bouchon + écrou + joint)'),'Coude 90° à souder pour tube SMS','Coude 45° à souder pour tube SMS','Té égal à souder pour tube SMS','Té réduit à souder pour tube SMS*','Réduction concentrique à souder pour tube SMS*']});
+  pieces:[jp('Raccord SMS complet'),'Mâle SMS à souder','Femelle SMS à souder','Écrou SMS',{n:'Joint SMS',opts:[JOINTM]},jp('Bouchon SMS complet'),'Coude 90° à souder pour tube SMS','Coude 45° à souder pour tube SMS','Té égal à souder pour tube SMS','Té réduit à souder pour tube SMS*','Réduction concentrique à souder pour tube SMS*']});
 add({cat:'alim',grp:'DIN 11851 (laitier)',title:'Raccords DIN 11851',norm:'DIN 11851 / DIN 11850',unit:'pièces',mats:M_I2,sizes:DIN,
-  pieces:[jp('Raccord laitier complet (mâle + femelle + écrou rond + joint)'),'Mâle DIN 11851 à souder','Femelle DIN 11851 à souder','Écrou rond DIN 11851',{n:'Joint DIN 11851',opts:[JOINTM]},jp('Bouchon DIN 11851 complet'),'Coude 90° à souder DIN 11850','Coude 45° à souder DIN 11850','Té égal à souder DIN 11850','Té réduit à souder DIN 11850*','Réduction concentrique à souder DIN 11850*']});
+  pieces:[jp('Raccord laitier complet'),'Mâle DIN 11851 à souder','Femelle DIN 11851 à souder','Écrou rond DIN 11851',{n:'Joint DIN 11851',opts:[JOINTM]},jp('Bouchon DIN 11851 complet'),'Coude 90° à souder DIN 11850','Coude 45° à souder DIN 11850','Té égal à souder DIN 11850','Té réduit à souder DIN 11850*','Réduction concentrique à souder DIN 11850*']});
 const CL = ['Virole clamp à souder','Collier clamp (2 demi-colliers + vis papillon)',{n:'Joint clamp',opts:[JOINTM]},'Bouchon clamp (virole pleine)','Coude 90° clamp (2 viroles soudées)','Té clamp (3 viroles soudées)','Réduction clamp*'];
 add({cat:'alim',grp:'Clamp',title:'Raccords clamp – ISO 2852 (Ø pouce)',norm:'ISO 2852 / ISO 2037',unit:'pièces',mats:M_I2,sizes:INCH,pieces:CL});
 add({cat:'alim',grp:'Clamp',title:'Raccords clamp – DIN 32676 série A',norm:'DIN 32676-A / DIN 11850',unit:'pièces',mats:M_I2,sizes:DIN,pieces:CL});
@@ -348,7 +349,7 @@ add({cat:'sou',grp:'Soudage',title:'Consommables de soudage',norm:'EN ISO 14343 
 
 /* ---------- État ---------- */
 const UNITS=['pièces','m','barres de 6 m','kg','jeu','lot','boîtes','bobines','bouteilles','flacons','feuilles','rouleaux'];
-let S={v:1,demandes:[],activeId:null,custom:[],cert:true};
+let S={v:1,demandes:[],activeId:null,custom:[],cert:false};
 let cur={fam:FAM[0].id,piece:0,mat:null,opts:{},s1:null,qty:{},unit:null,note:'',len:''};
 let query='';
 const $=id=>document.getElementById(id);
@@ -357,11 +358,11 @@ const act=()=>S.demandes.find(d=>d.id===S.activeId)||null;
 
 function exampleState(){
   const d={id:uid(),objet:'Exemple – chantier atelier (à vider)',four:'',ex:true,lines:[
-    {id:uid(),cat:'tube',famId:'f0',famTitle:'Tube inox – ISO 1127',norm:'EN 10217-7 soudé / EN 10216-5 sans soudure',name:'Tube inox',dim:'Ø60,3 × 2 mm (DN50)',spec:'inox 304L (1.4307), soudé',ref:'',qty:12,unit:'m',note:''},
-    {id:uid(),cat:'bw',famId:'f8',famTitle:'Raccords inox à souder bout à bout',norm:'EN 10253-4 / ASME B16.9',name:'Coude 90°',dim:'DN50 (Ø60,3)',spec:'inox 304L (1.4307), 2 mm, soudé (type B)',ref:'',qty:8,unit:'pièces',note:''},
-    {id:uid(),cat:'alim',famId:'f10',famTitle:'Raccords SMS',norm:'SMS 1145 / SMS 3008',name:'Raccord SMS complet (femelle + mâle + écrou + joint)',dim:'SMS 38 (Ø38 × 1,2)',spec:'inox 304L (1.4307), joint EPDM',ref:'',qty:6,unit:'pièces',note:''}
+    {id:uid(),cat:'tube',famId:'f0',famTitle:'Tube inox – ISO 1127',norm:'EN 10217-7 soudé / EN 10216-5 sans soudure',name:'Tube inox',dim:'Ø60,3 × 2 mm (DN50)',spec:'inox 304L (1.4307), soudé',sd:'DN50',ss:'inox 304L ép. 2 mm',ref:'',qty:12,unit:'m',note:''},
+    {id:uid(),cat:'bw',famId:'f8',famTitle:'Raccords inox à souder bout à bout',norm:'EN 10253-4 / ASME B16.9',name:'Coude 90°',dim:'DN50 (Ø60,3)',spec:'inox 304L (1.4307), 2 mm, soudé (type B)',sd:'DN50',ss:'inox 304L ép. 2 mm',ref:'',qty:8,unit:'pièces',note:''},
+    {id:uid(),cat:'alim',famId:'f10',famTitle:'Raccords SMS',norm:'SMS 1145 / SMS 3008',name:'Raccord SMS complet',dim:'SMS 38 (Ø38 × 1,2)',spec:'inox 304L (1.4307), joint EPDM',sd:'Ø38',ss:'inox 304L joint EPDM',ref:'',qty:6,unit:'pièces',note:''}
   ]};
-  return {v:1,demandes:[d],activeId:d.id,custom:[],cert:true};
+  return {v:1,demandes:[d],activeId:d.id,custom:[],cert:false};
 }
 
 /* ---------- Stockage ---------- */
@@ -419,7 +420,11 @@ function mkLine(fm,r,q){
   if(mt) spec.push(mt);
   op.forEach(o=>{ if(o.inDim) return; spec.push((o.lab||'')+ov[o.id]+(o.suf||'')); });
   if(pc.len&&cur.len) spec.push('L = '+cur.len+' mm');
-  return {id:uid(),cat:fm.cat,famId:fm.id,famTitle:fm.title,norm:fm.norm||'',name:pc.n,dim,spec:spec.join(', '),ref:r.ref||'',qty:q,unit:cur.unit||pc.unit||fm.unit||'pièces',note:cur.note||''};
+  let sd=''; if(!r.none){ sd=(r.s!=null?r.s:r.d); if(pc.two){ const sz2=sizesOf(fm,pc); const i2=Math.min(cur.s1==null?Math.min(5,sz2.length-1):cur.s1,sz2.length-1); const a2=sz2[i2]; sd=(a2.s!=null?a2.s:a2.d)+(pc.sep||' × ')+sd; } }
+  const ss=[]; if(mt){ const ms=mt.replace(/\s*\(.*$/,''); ss.push(/inox/i.test(pc.n)?ms.replace(/^inox /,''):ms); }
+  op.forEach(o=>{ if(['ex','face','surf','ext','ft'].includes(o.id)) return; const v=ov[o.id]; if(o.id==='ep'&&!o.lab&&/^\d/.test(v)) ss.push('ép. '+v+(/mm/.test(v)?'':' mm')); else ss.push((o.lab||'')+v.replace(/\s*\(.*?\)/g,'')+(o.suf||'')); });
+  if(pc.len&&cur.len) ss.push('L = '+cur.len+' mm');
+  return {id:uid(),cat:fm.cat,famId:fm.id,famTitle:fm.title,norm:fm.norm||'',name:pc.n,dim,spec:spec.join(', '),sd,ss:ss.join(' '),ref:r.ref||'',qty:q,unit:cur.unit||pc.unit||fm.unit||'pièces',note:cur.note||''};
 }
 function lineKey(l){return [l.famId,l.name,l.dim,l.spec,l.ref,l.unit,l.note].join('|')}
 function addLines(lines){
@@ -433,8 +438,9 @@ function newDemande(){
 
 /* ---------- Texte du mail ---------- */
 function qtyStr(q){return String(q).replace('.',',')}
+const dimOf=l=>l.sd!=null?l.sd:l.dim, specOf=l=>l.ss!=null?l.ss:l.spec;
 function lineText(l){
-  return l.name+(l.dim?' '+l.dim:'')+(l.spec?' – '+l.spec:'')+(l.ref?' – réf. '+l.ref:'')+(l.note?' ('+l.note+')':'');
+  return l.name+(dimOf(l)?' '+dimOf(l):'')+(specOf(l)?' '+specOf(l):'')+(l.ref?' – réf. '+l.ref:'')+(l.note?' ('+l.note+')':'');
 }
 function grouped(d){
   const out=[];
@@ -451,18 +457,18 @@ function mailText(d){
   g.forEach(c=>{
     t+='\n'+c.cat.t.toUpperCase()+'\n';
     c.fams.forEach(fm=>{
-      t+='\n'+fm.title+(fm.norm&&fm.norm!=='serti inox – réf. fournisseur'?' ('+fm.norm+')':'')+'\n';
-      fm.lines.forEach(l=>{ t+='- '+qtyStr(l.qty)+' '+l.unit+' : '+lineText(l)+'\n'; });
+      t+='\n'+fm.title+'\n';
+      fm.lines.forEach(l=>{ t+='- '+qtyStr(l.qty)+' '+(l.qty<=1&&l.unit==='pièces'?'pièce':l.unit)+' : '+lineText(l)+'\n'; });
     });
   });
-  if(S.cert) t+='\nCertificats matière EN 10204 type 3.1 demandés pour les tubes, raccords et brides.\n';
+  if(S.cert) t+='\nCertificats matière 3.1 demandés.\n';
   t+='\nMerci d\'avance.\nCordialement,';
   return t;
 }
 function csvText(d){
   const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
   const rows=[['Catégorie','Famille','Norme','Désignation','Réf. fournisseur','Quantité','Unité','Remarque']];
-  grouped(d).forEach(c=>c.fams.forEach(fm=>fm.lines.forEach(l=>rows.push([c.cat.t,fm.title,fm.norm,(l.name+(l.dim?' '+l.dim:'')+(l.spec?' – '+l.spec:'')),l.ref,qtyStr(l.qty),l.unit,l.note]))));
+  grouped(d).forEach(c=>c.fams.forEach(fm=>fm.lines.forEach(l=>rows.push([c.cat.t,fm.title,fm.norm,(l.name+(dimOf(l)?' '+dimOf(l):'')+(specOf(l)?' '+specOf(l):'')),l.ref,qtyStr(l.qty),l.unit,l.note]))));
   return '﻿'+rows.map(r=>r.map(q).join(';')).join('\r\n');
 }
 
@@ -555,7 +561,7 @@ function renderDem(){
     c.fams.forEach(fm=>{
       h+='<div class="fam-h">'+esc(fm.title)+'</div>';
       fm.lines.forEach(l=>{
-        h+='<div class="ln"><div class="t">'+esc(l.name+(l.dim?' '+l.dim:''))+'<br><em>'+esc((l.spec||'')+(l.ref?(l.spec?' · ':'')+'réf. '+l.ref:'')+(l.note?' · '+l.note:''))+'</em></div>'
+        h+='<div class="ln"><div class="t">'+esc(l.name+(dimOf(l)?' '+dimOf(l):''))+'<br><em>'+esc((specOf(l)||'')+(l.ref?(specOf(l)?' · ':'')+'réf. '+l.ref:'')+(l.note?' · '+l.note:''))+'</em></div>'
           +'<input type="number" min="0" step="any" value="'+esc(l.qty)+'" data-lq="'+l.id+'" aria-label="Quantité">'
           +'<select data-lu="'+l.id+'" aria-label="Unité">'+(UNITS.includes(l.unit)?UNITS:UNITS.concat([l.unit])).map(u=>'<option'+(u===l.unit?' selected':'')+'>'+esc(u)+'</option>').join('')+'</select>'
           +'<button class="x" data-ld="'+l.id+'" aria-label="Supprimer la ligne">×</button></div>';
@@ -648,7 +654,7 @@ function syncTabs(){ const v=$('app').dataset.view; document.querySelectorAll('#
 
 /* ---------- Démarrage ---------- */
 const saved=lsGet();
-if(saved&&saved.demandes){ S=saved; if(!S.custom) S.custom=[]; if(S.cert==null) S.cert=true; } else S=exampleState();
+if(saved&&saved.demandes){ S=saved; if(!S.custom) S.custom=[]; if(S.cert==null) S.cert=false; } else S=exampleState();
 if(!S.activeId&&S.demandes[0]) S.activeId=S.demandes[0].id;
 renderAll(); syncTabs(); setSync('Enregistré sur cet appareil');
 initStore();
