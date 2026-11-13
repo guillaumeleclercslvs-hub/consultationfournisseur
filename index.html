@@ -232,7 +232,8 @@ add({cat:'tube',grp:'Tubes acier',title:'Tube acier sans soudure – EN 10216-2'
 
 /* RACCORDS À SOUDER */
 const THR_O = [O('fil','Filetage',['1/8"','1/4"','3/8"','1/2"','3/4"','1"','1" 1/4','1" 1/2','2"','2" 1/2','3"','4"'],'1/2"',{lab:'filetage '}),O('ft','Type de filetage',['gaz BSP','NPT'],'gaz BSP')];
-const BW = ['Coude 90°','Coude 45°','Coude 180°','Té égal à souder','Té réduit à souder*','Réduction concentrique à souder*','Réduction excentrique à souder*','Fond bombé à souder (calotte)',{n:'Embout fileté mâle à souder',opts:THR_O},{n:'Embout fileté femelle à souder',opts:THR_O}];
+const THR_F = [Object.assign({},THR_O[0],{label:'Taraudage',lab:'taraudage '}),THR_O[1]];
+const BW = ['Coude 90°','Coude 45°','Coude 180°','Té égal à souder','Té réduit à souder*','Réduction concentrique à souder*','Réduction excentrique à souder*','Fond bombé à souder (calotte)',{n:'Embout fileté mâle à souder',opts:THR_O},{n:'Manchon taraudé à souder',opts:THR_F}];
 add({cat:'bw',grp:'Inox',title:'Raccords inox à souder bout à bout',norm:'EN 10253-4 / ASME B16.9',pieces:BW,mats:M_I,sizes:isoR(15,400),unit:'pièces',
   opts:[O('ep','Épaisseur',SCH_I,'2 mm'), O('ex','Exécution',['soudé (type B)','sans soudure (type A)'])]});
 add({cat:'bw',grp:'Acier',title:'Raccords acier à souder bout à bout',norm:'EN 10253-2 / ASME B16.9',pieces:BW,mats:M_AT,sizes:isoR(15,500),unit:'pièces',
